@@ -1,3 +1,7 @@
+static/SCSS/bootstrap/
+static/SCSS/scss/custom.css
+static/SCSS/scss/custom.css.map
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
