@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     
-    <title>test</title>
+    <title>Add-Project</title>
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='SCSS/scss/custom.css') }}">
+    
+    <script src="{{ url_for('static', filename='customjs/custom.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
+
 </head>
 <body>    
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar navbar-light bg-info">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">Navbar</span>
 
@@ -33,9 +38,45 @@
                             <div class="form-group">
                                 <lable for="projectDescription">Project Description</label>
                                 <textarea class="form-control" id="projectDescription" name="projectDescription" rows="3"></textarea>
-                                
+                                <lable for="projectSkills">Project Skills</label>
+                                <div id="projectSkills" name="projectSkills">
+                                    <div class="card bg-secondary" id="selected-skills" style="">
+                                        <h4>Selected Skills: </h4>
+                                        <div class="col">
+                                            <span  id="askill1"  style='display:none' class = "toskills m1" onclick="removeSkill('skill1')">
+                                                <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" >
+                                            </span>
+                                            <span  id="askill2" style='display:none' class = "toskills m1" onclick="removeSkill('skill2')">
+                                                <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white">
+                                            </span>
+                                            <span  id="askill3" style='display:none' class = "toskills m1" onclick="removeSkill('skill3')">
+                                                <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+                                            </span>
+                                        </div>
+                                    </div>
+                                    Add Skills
+                                    <div class="card bg-secondary" id="unselected-skills">
+                                        <div class="row m-2">
+                                            <div class="col">
+                                                <span  id="skill1" class = "toskills" onclick="addSkill('skill1')">
+                                                    <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white">
+                                                </span>
+                                                <span  id="skill2" class = "toskills" onclick="addSkill('skill2')">
+                                                    <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white">
+                                                </span>
+                                                <span  id="skill3" class = "toskills" onclick="addSkill('skill3')">
+                                                    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+                                                </span>
+                                                
+                                        
+                                        
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-info">Submit</button>
                             {{error}}
                         </form>
                     </div>
@@ -43,3 +84,10 @@
             </div>
         </div>
     </div>
+    <script>
+
+        
+        
+    </script>
+</body>
+</html>

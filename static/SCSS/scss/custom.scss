@@ -1,18 +1,22 @@
-
+//https://coolors.co/000000-0c1821-1b2a41-324a5f-e26d5a
 
 /* SCSS HEX */
-$a-blue: #e7ecefff;
-$y-blue: #274c77ff;
-$frost: #6096baff;
+$a-blue: #0C1821;
+$y-blue: #1B2A41;
+$frost: #1B2A41;
 $b-blue: #a3cef1ff;
-$b-grey: #1985A1;
+$b-grey: #324A5F;
 
 $primary: $y-blue;
 $danger: #ff4136;
+
+$info: #E26D5A;
+//$info: #A69888;
 $card-bg: $frost;
 $secondary: $b-grey;
 $body-bg: $a-blue;
 $card-color: white;
+
 
 $navbar-light-color: rgba($frost, .55);
 $navbar-light-hover-color: rgba($frost, .7);
@@ -22,3 +26,4 @@ $navbar-light-toggler-border-color:rgba($frost, .1);
 
 
 @import "../bootstrap/scss/bootstrap";
+
