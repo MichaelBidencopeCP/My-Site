@@ -1,55 +1,145 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
+from functools import wraps
 from dotenv import load_dotenv
 
 import os
 
-load_dotenv()
+## env variables ##
+load_dotenv('/home/ubuntu/my-site/My-Site/.env')
+
 SQL_USER = os.getenv("SQL_USER")
 SQL_PASSWORD = os.getenv("SQL_PASSWORD")
 SQL_DATABASE = os.getenv("SQL_DATABASE")
 SQL_HOST = os.getenv("SQL_HOST")
+MY_SITE = os.getenv("MY_SITE")
+SECRET_KEY = os.getenv("FLASK_SECRET")
+
+## Flask App ##
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{SQL_USER}:{SQL_PASSWORD}@{SQL_HOST}/{SQL_DATABASE}'
+
+app.secret_key = SECRET_KEY
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{SQL_USER}:{SQL_PASSWORD}@localhost/{SQL_DATABASE}'
 
 app.config["DEBUG"] = True
 db = SQLAlchemy(app)
 
+
+## Database Definition ##
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     project_name = db.Column(db.String(80), unique=True, nullable=False)
     discription = db.Column(db.Text())
     image = db.Column(db.String(80))
     priority = db.Column(db.Integer, default=0)
+    github = db.Column(db.String(80))
+    live = db.Column(db.String(80))
+
+    def toDict(self):
+        return {
+            "id": self.id,
+            "project_name": self.project_name,
+            "discription": self.discription,
+            "image": self.image,
+            "priority": self.priority,
+            "github": self.github,
+            "live": self.live
+        }
 
     def __repr__(self):
-        return '<User %r>' % self.project_name
+        return '<%r>' % self.project_name
+## End Database Definition ##
 
+## Login Decorator ##
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('user') is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+## End Login Decorator ##
 
+## Public Routes ##
 
+# Home Page
 @app.route('/')
 def index():
-    file = url_for('static', filename='SCSS/scss/custom.css')
-    return render_template('index.html', file= file)
+    
+    return render_template('index.html')
 
+# Api Call for Projects
+@app.route('/api/projects')
+def get_projects():
+    #query db for all projects
+    projects = Project.query.all()
+    returns = []
+    for x in projects:
+        returns.append(x.toDict())
+        
+    return jsonify(json_list = returns)
+
+#simple single user login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        try:
+            username = request.form['username']
+            password = request.form['password']
+            print(username, password)
+            if str(username) == 'admin':
+
+                if password == MY_SITE:
+                    print('session should be set')
+                    session['user'] = 1
+                    if 'user' in session:
+                        print(session['user'])
+                    
+                    return redirect(url_for('index'))
+            raise Exception('Invalid username or password')
+        except Exception as e:
+            return render_template('login.html', error=e)
+    else:
+        return render_template('login.html')
+
+## End Public Routes ##
+
+## User Routes ##
+
+# adding a project
 @app.route('/add-project', methods=['GET', 'POST'])
+@login_required
 def add_project():
     if request.method == 'POST':
-        project_name = request.form['project_name']
-        discription = request.form['discription']
-        priority = request.form['priority']
+        try:
+            project_name = request.form['projectName']
+            if project_name == '':
+                raise Exception('Project name is required')
+            discription = request.form['projectDescription']
+            priority = request.form['projectPriority']
 
-        new_project = Project(project_name=project_name, discription=discription, priority=priority)
+            new_project = Project(project_name=project_name, discription=discription, priority=priority)
 
-        db.session.add(new_project)
-        if db.session.commit():
+            db.session.add(new_project)
+            db.session.commit()
 
             return redirect(url_for('index'))
-        else:
-            return render_template('add-project.html', error='Error adding project')
+            
+        except Exception as e:
+            return render_template('add-project.html', error=e)
     else:
         return render_template('add-project.html' )
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+@login_required
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
+
+
+## End User Routes ##
+
+
+#if __name__ == '__main__':
+#    app.run(host='0.0.0.0', port=5000)
