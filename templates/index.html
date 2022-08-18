@@ -51,34 +51,63 @@
                 let data = await response.json();
                 console.log(data);
                 for (let i = 0; i < data['json_list'].length; i++) {
+                    
+                    let skills = data['json_list'][i]['id'];
+                    console.log(skills);
+
                     const element = data['json_list'][i];
-                    if(element['priority'] == 1){
-                        this.fillPty1(element);
-                    }
-                    else if(element['priority'] == 2){
-                        this.fillPty1(element);
-                    }
-                    else{
-                        this.fillPty1(element);
-                    }
+                    
+                    $('#projects').append('<div class="row pt-2" ><div class="'+this.priorityCol(element['priority']) +'"><div class="card"><div class="card-body"><h2> ' + element['project_name'] + '  </h2><p>  ' + element['discription'] + ' </p><div class="btn-group">' + this.check_git(element) + this.check_live(element) + '</div><div class="row mt-2" ><div class="col">'+ await this.addSkills2P(skills) + '</div></div></div></div></div>')
                 }
 
             }
+            async addSkills2P(skills){
+                //request skills/id from api
+                let response = await fetch("/api/skills/"+skills);
+                let data = await response.json();
+                console.log(data);
+                //for in data['json_list']
+                let skillslist = "";
+                for(let i = 0; i < data['json_list'].length; i++){
+                    //check if i % 5 = 0
+                    if(i % 5 == 0){
+                        //if so add a new row
+                        skillslist += '</div></div><div class="row"><div class="col">';
+                    }
+                    skillslist += '<img class="mt-2" src="' + data['json_list'][i] + '">';
+                }
+                return skillslist;
+                
+            }
+            priorityCol(prio){
+                if (prio == 3){
+                    return "col-12";
+                }
+                else if (prio == 2){
+                    return "col-6";
+                }
+                else if (prio == 1){
+                    return "col-4";
+                }
+                else{
+                    return "col-12";
+                }
+            }
             check_git( element){
                 if (element['github'] != null){
-                    return '<a href="' + element['github'] + '"><button type="button" class="btn btn-primary" >Github</button></a>'
+                    return '<a href="' + element['github'] + '"><button type="button" class="btn btn-info" >Github</button></a>'
                 }
                 return ""
 
             }
             check_live(element){
                 if (element['live'] != null){
-                    return '<a href="' + element['live'] + '"><button type="button" class="btn btn-primary" >Live</button></a>'
+                    return '<a href="' + element['live'] + '"><button type="button" class="btn btn-info" >Live</button></a>'
                 }
                 return ""
             }
             fillPty1( element){
-                $('#projects').append('<div class="row pt-2" ><div class="col-6"><div class="card"><div class="card-body"><h2> ' + element['project_name'] + '  </h2><p>  ' + element['discription'] + ' </p><div class="btn-group">' + this.check_git(element) + this.check_live(element) + '</div></div></div></div>')
+                
             }
         }
         let projects = new Projects();

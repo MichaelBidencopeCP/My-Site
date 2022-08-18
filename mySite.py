@@ -35,6 +35,7 @@ class Project(db.Model):
     priority = db.Column(db.Integer, default=0)
     github = db.Column(db.String(80))
     live = db.Column(db.String(80))
+    skills = db.Column(db.String(140))
 
     def toDict(self):
         return {
@@ -49,6 +50,17 @@ class Project(db.Model):
 
     def __repr__(self):
         return '<%r>' % self.project_name
+#holds programing skills
+class Skills(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    link = db.Column(db.String(200), unique=True, nullable=False)
+
+    def toDict(self):
+        return {
+            "id": self.id,
+            "link": self.link
+        }
+    
 ## End Database Definition ##
 
 ## Login Decorator ##
@@ -102,6 +114,36 @@ def login():
             return render_template('login.html', error=e)
     else:
         return render_template('login.html')
+##TODO skils to load in skils for form, and another skills/<procject_id> to load skills for project
+@app.route('/api/skills')
+def get_skills():
+    skills = Skills.query.all()
+    returns = []
+    for x in skills:
+        returns.append(x.toDict())
+        print    (returns)
+        
+    return jsonify(json_list = returns)
+
+@app.route('/api/skills/<project_id>')
+def get_skills_for_project(project_id):
+    #query db for project matching id
+    project = Project.query.filter_by(id=project_id).first()
+    #get skills
+    skillsp = project.skills
+    #split skills into list
+    skillsp = skillsp.split(',')
+    #get skills with matching id from db
+    skills = Skills.query.filter(Skills.id.in_(skillsp)).all()
+    #order skills to match skills in project
+    skills = sorted(skills, key=lambda x: skillsp.index(str(x.id)))
+    returns = []
+    for x in skills:
+        returns.append(x.toDict()['link'])
+
+
+    return jsonify(json_list = returns)
+
 
 ## End Public Routes ##
 
@@ -112,22 +154,44 @@ def login():
 @login_required
 def add_project():
     if request.method == 'POST':
-        try:
-            project_name = request.form['projectName']
-            if project_name == '':
-                raise Exception('Project name is required')
-            discription = request.form['projectDescription']
-            priority = request.form['projectPriority']
+        #check if projectName in post request
+        if 'projectName' in request.form:
+            try:
+                project_name = request.form['projectName']
+                if project_name == '':
+                    raise Exception('Project name is required')
+                discription = request.form['projectDescription']
+                priority = request.form['projectPriority']
+                skills = request.form['skills']
+                github = request.form['github']
+                if github == '':
+                    github = None
+                live = request.form['live']
+                if live == '':
+                    live = None
+                
 
-            new_project = Project(project_name=project_name, discription=discription, priority=priority)
+                new_project = Project(project_name=project_name, discription=discription, priority=priority, skills=skills, github=github, live=live)
 
-            db.session.add(new_project)
-            db.session.commit()
+                db.session.add(new_project)
+                db.session.commit()
 
-            return redirect(url_for('index'))
-            
-        except Exception as e:
-            return render_template('add-project.html', error=e)
+                return redirect(url_for('index'))
+                
+            except Exception as e:
+                return render_template('add-project.html', error=e)
+        if 'skillUrl' in request.form:
+            try:
+                skill = request.form['skillUrl']
+                if skill == '':
+                    raise Exception('Skill is required')
+                new_skill = Skills(link=skill)
+                db.session.add(new_skill)
+                db.session.commit()
+                s = 'Skill added'
+                return render_template('add-project.html', success=s)
+            except Exception as e:
+                return render_template('add-project.html', error=e)
     else:
         return render_template('add-project.html' )
 

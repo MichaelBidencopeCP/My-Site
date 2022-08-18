@@ -6,6 +6,7 @@ $y-blue: #1B2A41;
 $frost: #1B2A41;
 $b-blue: #a3cef1ff;
 $b-grey: #324A5F;
+$orange: #E26D5A;
 
 $primary: $y-blue;
 $danger: #ff4136;
@@ -17,6 +18,9 @@ $secondary: $b-grey;
 $body-bg: $a-blue;
 $card-color: white;
 
+$input-bg: $b-grey;
+$input-color: #E26D5A;
+$input-border-color: #E26D5A;
 
 $navbar-light-color: rgba($frost, .55);
 $navbar-light-hover-color: rgba($frost, .7);
@@ -24,6 +28,17 @@ $navbar-light-active-color:rgba($frost, .9);
 $navbar-light-disabled-color:rgba($frost, .3);
 $navbar-light-toggler-border-color:rgba($frost, .1);
 
+$nav-tabs-border-color: $frost;
+$nav-tabs-link-active-color:$orange;
+$nav-tabs-link-hover-border-color: white;
+$nav-link-hover-color: white;
+$nav-link-color: $orange;
+$nav-tabs-border-width: 0px;
+       
+$nav-tabs-link-active-bg: $frost;          
+$nav-tabs-link-active-border-color: $orange;
 
+$body-color: $orange;
+ 
 @import "../bootstrap/scss/bootstrap";
 

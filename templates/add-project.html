@@ -11,7 +11,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
 
 </head>
-<body>    
+<body>
     <nav class="navbar navbar-light bg-info">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1">Navbar</span>
@@ -22,30 +22,59 @@
     <div class="container p-4">
         <div class="row">
             <div class="col">
-                <div class="card">
-                    <div class = "card-body">
+                <ul class="nav nav-tabs border-0 tabz">
+                    <li class="nav-item ">
+                        <a class="nav-link active border-bottom-0 tabz" id='projectAddTab' onclick="tabs(0)">Add Project</a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link border-bottom-0 tabz" id="addSkillTab" onclick="tabs(1)">Add Skills</a>
+                    </li>
+                    
+                </ul>
+                <div class="card border-0 rounded-0 tabCards" id='projectAdd'>
+                    
+                    <div class = "card-body" >
+                        
                         <form method="POST">
                             <div class="form-group">
-                                <label for="projectName">Project Name</label>
-                                <input type="text" class="form-control bg-secondary" id="projectName" name="projectName" placeholder="Project Name">
-                                <lable for="projectPriority">Project Priority</label>
-                                <select class="form-control bg-secondary" id="projectPriority" name="projectPriority">
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                </select>
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="projectName">Project Name</label>
+                                        <input type="text" class="form-control bg-secondary" id="projectName" name="projectName" placeholder="Project Name">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <lable for="projectPriority">Project Priority</label>
+                                        <select class="form-control bg-secondary" id="projectPriority" name="projectPriority">
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="github">GitHub</label>
+                                        <input type="text" class="form-control bg-secondary" id="github" name="github" placeholder="GitHub or leave blank">
+                                    </div>
+                                    <div class="col">
+                                        <label for="live">Live</label>
+                                        <input type="text" class="form-control bg-secondary" id="live" name="live" placeholder="Live or leave blank">
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <lable for="projectDescription">Project Description</label>
                                 <textarea class="form-control bg-secondary" id="projectDescription" name="projectDescription" rows="3"></textarea>
                                 <lable for="projectSkills">Project Skills</label>
                                 <div id="projectSkills" name="projectSkills">
-                                    <div class="card bg-secondary" id="selected-skills" style="">
+                                    <div class="card bg-secondary border border-info"  style="">
                                         
                                         <div class="row m-2">
                                             Selected Skills:
-                                            <div class="col">
-                                                <span  id="askill1"  style='display:none' class = "toskills m1" onclick="removeSkill('skill1')">
+                                            <div class="col" id="selected-skills">
+                                                <!--<span  id="askill1"  style='display:none' class = "toskills m1" onclick="removeSkill('skill1')">
                                                     <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" >
                                                 </span>
                                                 <span  id="askill2" style='display:none' class = "toskills m1" onclick="removeSkill('skill2')">
@@ -53,16 +82,16 @@
                                                 </span>
                                                 <span  id="askill3" style='display:none' class = "toskills m1" onclick="removeSkill('skill3')">
                                                     <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
-                                                </span>
+                                                </span>-->
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="card bg-secondary mt-2" id="unselected-skills">
+                                    <div class="card bg-secondary mt-2 border border-info" >
                                         <div class="row m-2">
                                             Add Skills:
-                                            <div class="col">
-                                                <span  id="skill1" class = "toskills" onclick="addSkill('skill1')">
+                                            <div class="col" id="unselected-skills">
+                                                <!--<span  id="skill1" class = "toskills" onclick="addSkill('skill1')">
                                                     <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white">
                                                 </span>
                                                 <span  id="skill2" class = "toskills" onclick="addSkill('skill2')">
@@ -70,7 +99,7 @@
                                                 </span>
                                                 <span  id="skill3" class = "toskills" onclick="addSkill('skill3')">
                                                     <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
-                                                </span>
+                                                </span>-->
                                                 
                                         
                                         
@@ -80,18 +109,31 @@
                                 </div>
 
                             </div>
-                            <button type="submit" class="btn btn-info">Submit</button>
+                            <input type="hidden" id="skills" name="skills" value="">
+                            <button type="submit" class="btn btn-info mt-2">Submit</button>
                             {{error}}
+                            
                         </form>
                     </div>
                 </div>
+                <div class="card border-0 rounded-0 tabCards" style="display:none" id="addSkill">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <form method="post">
+                                <label for="skillUrl">Skill Url</label>
+                                <input type="text" class="form-control bg-secondary" id="skillUrl" name="skillUrl" placeholder="Skill Url">
+                                <button type="submit" class="btn btn-info mt-2">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                
             </div>
         </div>
     </div>
     <script>
-
-        
-        
+        getSkills();
     </script>
 </body>
 </html>
