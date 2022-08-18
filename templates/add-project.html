@@ -27,9 +27,9 @@
                         <form method="POST">
                             <div class="form-group">
                                 <label for="projectName">Project Name</label>
-                                <input type="text" class="form-control" id="projectName" name="projectName" placeholder="Project Name">
+                                <input type="text" class="form-control bg-secondary" id="projectName" name="projectName" placeholder="Project Name">
                                 <lable for="projectPriority">Project Priority</label>
-                                <select class="form-control" id="projectPriority" name="projectPriority">
+                                <select class="form-control bg-secondary" id="projectPriority" name="projectPriority">
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
@@ -37,26 +37,30 @@
                             </div>
                             <div class="form-group">
                                 <lable for="projectDescription">Project Description</label>
-                                <textarea class="form-control" id="projectDescription" name="projectDescription" rows="3"></textarea>
+                                <textarea class="form-control bg-secondary" id="projectDescription" name="projectDescription" rows="3"></textarea>
                                 <lable for="projectSkills">Project Skills</label>
                                 <div id="projectSkills" name="projectSkills">
                                     <div class="card bg-secondary" id="selected-skills" style="">
-                                        <h4>Selected Skills: </h4>
-                                        <div class="col">
-                                            <span  id="askill1"  style='display:none' class = "toskills m1" onclick="removeSkill('skill1')">
-                                                <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" >
-                                            </span>
-                                            <span  id="askill2" style='display:none' class = "toskills m1" onclick="removeSkill('skill2')">
-                                                <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white">
-                                            </span>
-                                            <span  id="askill3" style='display:none' class = "toskills m1" onclick="removeSkill('skill3')">
-                                                <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
-                                            </span>
+                                        
+                                        <div class="row m-2">
+                                            Selected Skills:
+                                            <div class="col">
+                                                <span  id="askill1"  style='display:none' class = "toskills m1" onclick="removeSkill('skill1')">
+                                                    <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" >
+                                                </span>
+                                                <span  id="askill2" style='display:none' class = "toskills m1" onclick="removeSkill('skill2')">
+                                                    <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white">
+                                                </span>
+                                                <span  id="askill3" style='display:none' class = "toskills m1" onclick="removeSkill('skill3')">
+                                                    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                    Add Skills
-                                    <div class="card bg-secondary" id="unselected-skills">
+                                    
+                                    <div class="card bg-secondary mt-2" id="unselected-skills">
                                         <div class="row m-2">
+                                            Add Skills:
                                             <div class="col">
                                                 <span  id="skill1" class = "toskills" onclick="addSkill('skill1')">
                                                     <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white">
