@@ -1,24 +1,12 @@
-<!DOCTYPE html>
-<html lang="en"> 
-<head>
-    <meta charset="UTF-8">
-    
-    <title>About Me! :D</title>
-    <!--{{url_for('static', filename='SCSS/scss/custom.css')}}-->
-    <link rel="stylesheet" href="../static/SCSS/scss/custom.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
-</head>
-<body>    
-    <nav class="navbar navbar-light bg-info">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1" style="color:white;">Projects</span>
 
-        </div>
+{% extends 'base.html'%}
 
-    </nav>
+{% block title %}Portfolio  {% endblock %}
+
+{% block content %}
     <div class="contianer p-4">
         
-        <div class="row">
+        <div class="row ">
             <div class="col">
                 <div class="card bg-secondary">
                     <div class="card-body">
@@ -26,92 +14,24 @@
                         <p>
                             I am a self starter, self taught freelance developer, I have been working with web development for 3 years now, I have worked with many different languages and frameworks, I am currently working with Python, Django, DRF, Flask, HTML, CSS, Javascript, jQuery, and Bootstrap.
                             I have attended several formal schools and have taken many computer sience classes and have taken up to liniar algebra and calculus 2.<br>
-                            Below is a list of my projects, links to the github of the project and live versions if availiable.
+                            Below is a list of my projects, links to the github of the project and live versions if availiable.<br>
+                            You can reach me at mbidencope3@gmail.com
                             
                         </p>
                     </div>  
                 </div>
             </div>
         </div>
-        <h1 style="color:black;">Projects</h1>
-        <div id = "projects">
+        <h1 style="color:white;">Projects</h1>
+        <div id = "projects" class="row ">
+            
+            
         </div> 
     </div>
     <script>
-        $(document).ready(function(){
-            console.log("ready");
-        });
-        class Projects{
-            constructor(){
-                //
-            }
-            // fills projects from call to /api/projects
-            async fill(){
-                let response = await fetch("/api/projects");
-                let data = await response.json();
-                console.log(data);
-                for (let i = 0; i < data['json_list'].length; i++) {
-                    
-                    let skills = data['json_list'][i]['id'];
-                    console.log(skills);
-
-                    const element = data['json_list'][i];
-                    
-                    $('#projects').append('<div class="row pt-2" ><div class="'+this.priorityCol(element['priority']) +'"><div class="card"><div class="card-body"><h2> ' + element['project_name'] + '  </h2><p>  ' + element['discription'] + ' </p><div class="btn-group">' + this.check_git(element) + this.check_live(element) + '</div><div class="row mt-2" ><div class="col">'+ await this.addSkills2P(skills) + '</div></div></div></div></div>')
-                }
-
-            }
-            async addSkills2P(skills){
-                //request skills/id from api
-                let response = await fetch("/api/skills/"+skills);
-                let data = await response.json();
-                console.log(data);
-                //for in data['json_list']
-                let skillslist = "";
-                for(let i = 0; i < data['json_list'].length; i++){
-                    //check if i % 5 = 0
-                    if(i % 5 == 0){
-                        //if so add a new row
-                        skillslist += '</div></div><div class="row"><div class="col">';
-                    }
-                    skillslist += '<img class="mt-2" src="' + data['json_list'][i] + '">';
-                }
-                return skillslist;
-                
-            }
-            priorityCol(prio){
-                if (prio == 3){
-                    return "col-12";
-                }
-                else if (prio == 2){
-                    return "col-6";
-                }
-                else if (prio == 1){
-                    return "col-4";
-                }
-                else{
-                    return "col-12";
-                }
-            }
-            check_git( element){
-                if (element['github'] != null){
-                    return '<a href="' + element['github'] + '"><button type="button" class="btn btn-info" >Github</button></a>'
-                }
-                return ""
-
-            }
-            check_live(element){
-                if (element['live'] != null){
-                    return '<a href="' + element['live'] + '"><button type="button" class="btn btn-info" >Live</button></a>'
-                }
-                return ""
-            }
-            fillPty1( element){
-                
-            }
-        }
+        
+    
         let projects = new Projects();
         projects.fill();
     </script>
-</body>
-</html>
+ {% endblock %}

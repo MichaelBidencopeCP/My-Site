@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Project{% endblock %}
+{% block title %}Edit Project{% endblock %}
 
 {% block content %}
     <div class="container p-4">
@@ -24,7 +24,7 @@
                                 <div class="row">
                                     <div class="col">
                                         <label for="projectName">Project Name</label>
-                                        <input type="text" class="form-control bg-secondary" id="projectName" name="projectName" placeholder="Project Name">
+                                        <input type="text" class="form-control bg-secondary" id="projectName" name="projectName" value="{{ project.project_name }}">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -40,17 +40,17 @@
                                 <div class="row">
                                     <div class="col">
                                         <label for="github">GitHub</label>
-                                        <input type="text" class="form-control bg-secondary" id="github" name="github" placeholder="GitHub or leave blank">
+                                        <input type="text" class="form-control bg-secondary" id="github" name="github" value="{{project.github}}">
                                     </div>
                                     <div class="col">
                                         <label for="live">Live</label>
-                                        <input type="text" class="form-control bg-secondary" id="live" name="live" placeholder="Live or leave blank">
+                                        <input type="text" class="form-control bg-secondary" id="live" name="live" placeholder="Live or leave blank" value="{{ project.live }}">
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <lable for="projectDescription">Project Description</label>
-                                <textarea class="form-control bg-secondary" id="projectDescription" name="projectDescription" rows="3"></textarea>
+                                <textarea class="form-control bg-secondary" id="projectDescription" name="projectDescription" rows="3" >{{project.discription}}</textarea>
                                 <lable for="projectSkills">Project Skills</label>
                                 <div id="projectSkills" name="projectSkills">
                                     <div class="card bg-secondary border border-info"  style="">
@@ -118,6 +118,18 @@
         </div>
     </div>
     <script>
-        getSkills();
+        
+            
+        
+        
+        async function loads(){
+            await getSkills();
+            let skills = [{{project.skills}}];
+            for (let i = 0; i < skills.length; i++) {
+                addSkill('skill' + skills[i]);
+            }
+        }
+        loads();
+        
     </script>
 {% endblock %}

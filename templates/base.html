@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>{% block title %}{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='SCSS/scss/custom.css') }}">
+    
+    <script src="{{ url_for('static', filename='customjs/custom.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
+
+</head>
+<body>
+    <nav class="navbar navbar-light bg-info">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">{{self.title()}} </span>
+
+        </div>
+
+    </nav>
+    {% block content %}{% endblock %}
+</body>
+</html>

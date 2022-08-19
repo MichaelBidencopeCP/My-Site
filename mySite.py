@@ -195,6 +195,44 @@ def add_project():
     else:
         return render_template('add-project.html' )
 
+# edit a project
+@login_required
+@app.route('/edit-project/<project_id>', methods=['GET', 'POST'])
+def editProject(project_id):
+    project = Project.query.filter_by(id=project_id).first()
+    if request.method == 'POST':
+        try:
+            project_name = request.form['projectName']
+            if project_name == '':
+                raise Exception('Project name is required')
+            discription = request.form['projectDescription']
+            priority = request.form['projectPriority']
+            skills = request.form['skills']
+            github = request.form['github']
+            if github == '':
+                github = None
+            live = request.form['live']
+            if live == '':
+                live = None
+            project.project_name = project_name
+            project.discription = discription
+            project.priority = priority
+            project.skills = skills
+            project.github = github
+            project.live = live
+            db.session.commit()
+            return redirect(url_for('index'))
+        except Exception as e:
+            return render_template('edit-project.html', error=e, project=project)
+    else:
+        return render_template('edit-project.html', project=project)
+@login_required
+@app.route('/edit')
+def edit():
+    projects = Project.query.all()
+    return render_template('edit.html', projects=projects)
+
+
 @login_required
 @app.route('/logout')
 def logout():
