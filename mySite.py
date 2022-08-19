@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 from dotenv import load_dotenv
+import socket
 
 import os
 
@@ -14,7 +15,9 @@ SQL_DATABASE = os.getenv("SQL_DATABASE")
 SQL_HOST = os.getenv("SQL_HOST")
 MY_SITE = os.getenv("MY_SITE")
 SECRET_KEY = os.getenv("FLASK_SECRET")
-
+HOUSE_IP = os.getenv("HOUSE_IP")
+LOCK_PORT = os.getenv("LOCK_PORT")
+LOCK_PASSWORD = os.getenv("LOCK_PASSWORD")
 ## Flask App ##
 
 app = Flask(__name__)
@@ -24,6 +27,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{SQL_USER}:{SQL_PASSWORD}@loca
 
 app.config["DEBUG"] = True
 db = SQLAlchemy(app)
+
 
 
 ## Database Definition ##
@@ -62,6 +66,16 @@ class Skills(db.Model):
         }
     
 ## End Database Definition ##
+
+## Context Processor ##
+@app.context_processor
+def loggedin():
+    if session.get('user') is None:
+        return dict(loggedin=False)
+    else:
+        return dict(loggedin=True)
+
+
 
 ## Login Decorator ##
 def login_required(f):
@@ -240,7 +254,50 @@ def logout():
     return redirect(url_for('index'))
 
 
+@login_required
+@app.route('/home', methods=['GET', 'POST'])
+def home():
+    
+    return render_template('home.html')
+
+@login_required
+@app.route('/api/locktriger')
+def locktriger():
+    lockResponse = make_request()
+    return jsonify(json_list = lockResponse)
+
+
 ## End User Routes ##
+
+## FUNCTIONS ##
+
+def make_request():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Connect the socket to the port where the server is listening
+    server_address = (HOUSE_IP , int(LOCK_PORT))
+    print( f'connecting to {server_address[0]} port {server_address[1]}' )
+    sock.connect(server_address)
+    response = ""
+    try:
+        while response != 'done':
+            # Send data
+            message = LOCK_PASSWORD
+            
+            sock.sendto(message.encode(), server_address)
+            #set response to the data received from the server
+            response = sock.recv(1024).decode()
+            print ( f'received "{response}"' )
+    except:
+        return False
+    finally:
+        print( 'closing socket')
+        sock.close()
+        return True
+    
+    
+        
+
 
 
 #if __name__ == '__main__':

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block content %}
+    <div class="container p-4">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Lock</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-1 m-1">
+                                <div style='background-color:red; width:30px;height:100%; border-radius:2px' id="lock" ></div>
+                            </div>
+                            <div class="col m-1">
+                                <button class="btn btn-info" onclick="unlock(1)">Unlock</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Lights</h3>
+                    </div>
+                    <div class="card-body">
+                        TODO
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function unlock(drawer) {
+            $('#lock').css('background-color', 'green');
+            await fetch("{{ url_for('locktriger')}}")
+            $('#lock').css('background-color', 'red');
+            
+        }
+
+    </script>
+
+{% endblock %}
