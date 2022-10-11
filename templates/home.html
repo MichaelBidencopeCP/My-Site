@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 
 {% block title %} Home {% endblock %}
-
+{% block header %}
+<script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+{% endblock %}
 {% block content %}
     <div class="container p-4">
         <div class="row">
@@ -28,8 +30,21 @@
                     <div class="card-header">
                         <h3>Lights</h3>
                     </div>
-                    <div class="card-body">
-                        TODO
+                    <div class="card-body h-100">
+                        <div class="btn-group">
+                            <button id="bulb1" class="btn btn-info bulbs" onclick="bulb(1)">1</button>
+                            <button id="bulb2" class="btn btn-info bulbs" onclick="bulb(2)">2</button>
+                            <button id="bulb3" class="btn btn-info bulbs" onclick="bulb(3)">3</button>
+                            <button id="bulb4" class="btn btn-info bulbs" onclick="bulb(4)">4</button>
+                            <button =id="bulb5" class="btn btn-info bulbs" onclick="bulb(5)">all</button>
+                        </div>
+                        <input type="hidden" id="blub" value="0">
+                        <div id="picker"></div>
+                        <h5>Brightness</h5>
+                        <div class="card bg-secondary">
+                            
+                            <input type="range" min="0" max="100" step="5" class="form-range" id="brightness">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -45,7 +60,36 @@
             $('#lock').css('background-color', 'red');
             
         }
+        var colorPicker = new iro.ColorPicker('#picker');
+        colorPicker.on('input:end', function(color) {
+            console.log(color.hexString);
+            console.log(color.rgbaString);
+            
+            //spit rgb string into r g b string
+            var rgb = color.rgbString.split("(")[1].split(")")[0].split(",").join('-').replace(/\s/g, '');
+            var bright = $('#brightness').val();
+            //send request to server
+            if($('#blub').val() != 0){
+                fetch("api/lighttrigger/1/" + rgb + "/" + bright + "/" + $('#blub').val());
+            }
+            else{
+                fetch("api/lighttrigger/1/" + rgb + "/" + bright);
+            }
 
+        });
+
+        function bulb(num){
+            $('.bulbs').removeClass('active');
+            $('#bulb' + num).addClass('active');
+            if(num == 5){
+                $('#blub').val(0);
+            }
+            else{
+                $('#blub').val(num);
+            }
+            
+
+        }
     </script>
 
 {% endblock %}

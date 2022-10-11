@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 from dotenv import load_dotenv
 import socket
-
+from markupsafe import escape
 import os
 
 ## env variables ##
@@ -18,6 +18,7 @@ SECRET_KEY = os.getenv("FLASK_SECRET")
 HOUSE_IP = os.getenv("HOUSE_IP")
 LOCK_PORT = os.getenv("LOCK_PORT")
 LOCK_PASSWORD = os.getenv("LOCK_PASSWORD")
+LIGHT_PORT = os.getenv("LIGHT_PORT")
 ## Flask App ##
 
 app = Flask(__name__)
@@ -128,15 +129,13 @@ def login():
             return render_template('login.html', error=e)
     else:
         return render_template('login.html')
-##TODO skils to load in skils for form, and another skills/<procject_id> to load skills for project
+##skils to load in skils for form, and another skills/<procject_id> to load skills for project
 @app.route('/api/skills')
 def get_skills():
     skills = Skills.query.all()
     returns = []
     for x in skills:
         returns.append(x.toDict())
-        print    (returns)
-        
     return jsonify(json_list = returns)
 
 @app.route('/api/skills/<project_id>')
@@ -210,8 +209,9 @@ def add_project():
         return render_template('add-project.html' )
 
 # edit a project
-@login_required
+
 @app.route('/edit-project/<project_id>', methods=['GET', 'POST'])
+@login_required
 def editProject(project_id):
     project = Project.query.filter_by(id=project_id).first()
     if request.method == 'POST':
@@ -240,32 +240,43 @@ def editProject(project_id):
             return render_template('edit-project.html', error=e, project=project)
     else:
         return render_template('edit-project.html', project=project)
-@login_required
+
 @app.route('/edit')
+@login_required
 def edit():
     projects = Project.query.all()
     return render_template('edit.html', projects=projects)
 
 
-@login_required
+
 @app.route('/logout')
+@login_required
 def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
 
 
-@login_required
+
 @app.route('/home', methods=['GET', 'POST'])
+@login_required
 def home():
     
     return render_template('home.html')
 
-@login_required
+
 @app.route('/api/locktriger')
+@login_required
 def locktriger():
     lockResponse = make_request()
     return jsonify(json_list = lockResponse)
 
+@app.route('/api/lighttrigger/<int:light>/<string:rgb>/<int:brightness>')
+@app.route('/api/lighttrigger/<int:light>/<string:rgb>/<int:brightness>/<int:bulb>')
+@login_required
+def lighttrigger(light, rgb, brightness, bulb = 0):
+    frgb = rgb.replace('-', ' ')
+    lightResponse = makeLightRequest(frgb, brightness, bulb)
+    return jsonify(json_list = lightResponse)
 
 ## End User Routes ##
 
@@ -281,7 +292,7 @@ def make_request():
     response = ""
     try:
         while response != 'done':
-            # Send data
+            # Send data 
             message = LOCK_PASSWORD
             
             sock.sendto(message.encode(), server_address)
@@ -294,7 +305,46 @@ def make_request():
         print( 'closing socket')
         sock.close()
         return True
-    
+
+def makeLightRequest(rgb,b, bulb = 0):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Connect the socket to the port where the server is listening
+    server_address = (HOUSE_IP , int(LIGHT_PORT))
+    print( f'connecting to {server_address[0]} port {server_address[1]}' )
+    sock.connect(server_address)
+    print('going')
+    response = ""
+    try:
+        if bulb == 0:
+            while response != 'done':
+                # Send data
+                message = f"1{str(rgb)}|{str(b)}" 
+                print(message)
+                sock.sendto(message.encode(), server_address)
+                #set response to the data received from the server
+                response = sock.recv(1024).decode()
+                print ( f'received "{response}"' )
+        else:
+            while response != 'done':
+                # Send data
+                message = f"2{str(rgb)}|{str(b)}|{bulb}" 
+                print(message)
+                sock.sendto(message.encode(), server_address)
+                #set response to the data received from the server
+                response = sock.recv(1024).decode()
+                print ( f'received "{response}"' )
+    except:
+
+        print ( f'error' )
+        return False
+    finally:
+        print( 'closing socket')
+        sock.close()
+        return True
+
+
+## End FUNCTIONS ##
     
         
 
