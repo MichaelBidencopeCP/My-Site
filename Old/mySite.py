@@ -4,6 +4,7 @@ from functools import wraps
 from dotenv import load_dotenv
 import socket
 from markupsafe import escape
+import datetime
 import os
 
 ## env variables ##
@@ -19,6 +20,7 @@ HOUSE_IP = os.getenv("HOUSE_IP")
 LOCK_PORT = os.getenv("LOCK_PORT")
 LOCK_PASSWORD = os.getenv("LOCK_PASSWORD")
 LIGHT_PORT = os.getenv("LIGHT_PORT")
+KEY = os.getenv("KEY")
 ## Flask App ##
 
 app = Flask(__name__)
@@ -65,8 +67,36 @@ class Skills(db.Model):
             "id": self.id,
             "link": self.link
         }
-    
+class DeltaReports(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    status = db.Column(db.Boolean)
+
+    def toDict(self):
+        return {
+            "id": self.id,
+            "date": self.date,
+            "status": self.report
+        }
+class Alerts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    severity = db.Column(db.Integer, default=1)
+    date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    message = db.Column(db.String(200))
+    alert = db.Column(db.String(200))
+
+    def toDict(self):
+        return {
+            "id": self.id,
+            "date": self.date,
+            "message": self.message,
+            "alert": self.alert
+        }
+
+
+
 ## End Database Definition ##
+
 
 ## Context Processor ##
 @app.context_processor
@@ -93,7 +123,6 @@ def login_required(f):
 # Home Page
 @app.route('/')
 def index():
-    
     return render_template('index.html')
 
 # Api Call for Projects
@@ -104,8 +133,73 @@ def get_projects():
     returns = []
     for x in projects:
         returns.append(x.toDict())
-        
     return jsonify(json_list = returns)
+
+##API CALLS FOR REPORT ON DATA PIPELINE##
+@app.route('/api/emergency-alert', methods=['GET', 'POST'])
+def emergency_alert():
+    if request.method == 'POST':
+        #check if header has field authentication
+        #raise Exception([x for x in request.headers.keys()])
+        if 'Authentication' in [x for x in request.headers.keys()]:
+            checks = request.headers['Authentication']
+            if str(checks) != str(KEY):
+                return jsonify({'auth': 'false'})
+
+            #get post body
+            #get message
+            request.get_json()
+            if request.json['message'] == None:
+                return jsonify({'message': 'false'})
+            #put message in db
+            alert = Alerts(message=request.json['message'], alert='DeltaPipeline')
+            db.session.add(alert)
+            db.session.commit()
+            return jsonify({'message': 'true'})
+        else:
+            return jsonify({'auth': 'reeee'})
+
+
+@app.route('/api/dataPipelineReporting', methods=['GET', 'POST'])
+def data_pipeline_reporting():
+    if request.method == 'POST':
+        #check if header has field authentication
+
+        if request.headers.keys() == 'Authentication':
+            if request.headers['Authentication'] != KEY:
+                return jsonify({'auth': 'false'})
+
+
+            #get post body
+            #check results of post body
+            # data in {"0": {"add": 'true'}, "1": {"update": 'true'}, "2": {"delete": 'true'}, "removedCurrent": 'true', "removeOldArchives": 'false', "moveReportToArchive-clean": 'true'}
+            #check that all are true other then removedOldArchives
+            jsonResponse = request.get_json()
+            #changed stuff but im not chagning the name
+            x = jsonResponse
+            if x['0']['add'] != True or x['1']['update'] != True or x['2']['delete'] != True or x['removedCurrent'] != True or x['moveReportToArchive-clean'] != True:
+                data = {'confirm':0}
+
+                #instert failed result into DeltaReports
+                result = DeltaReports(status=False, date = jsonResponse['date'])
+                db.session.add(result)
+
+            else:
+                data = {'confirm':1}
+                #instert success result into DeltaReports
+                result = DeltaReports(status=True, date = jsonResponse['date'])
+                db.session.add(result)
+            db.session.commit()
+            return jsonify(data)
+        else:
+            data = {'confirm':0}
+        return jsonify(data)
+    else:
+        return jsonify({'confirm':0})
+
+
+
+
 
 #simple single user login
 @app.route('/login', methods=['GET', 'POST'])
@@ -122,7 +216,7 @@ def login():
                     session['user'] = 1
                     if 'user' in session:
                         print(session['user'])
-                    
+
                     return redirect(url_for('index'))
             raise Exception('Invalid username or password')
         except Exception as e:
@@ -156,8 +250,21 @@ def get_skills_for_project(project_id):
 
 
     return jsonify(json_list = returns)
+@app.route('/payment')
+def payment():
+    return render_template('payment.html')
+
+@app.route('/api/time')
+def get_time():
+    current_time = datetime.datetime.now()
+    current_time = current_time - datetime.timedelta(hours=5)
+    hours = current_time.hour
 
 
+
+    returns =  f"{str(hours).zfill(2)}:{str(current_time.minute).zfill(2)}:{str(current_time.second).zfill(2)}"
+    returns = "{"+returns+"}"
+    return returns
 ## End Public Routes ##
 
 ## User Routes ##
@@ -182,7 +289,7 @@ def add_project():
                 live = request.form['live']
                 if live == '':
                     live = None
-                
+
 
                 new_project = Project(project_name=project_name, discription=discription, priority=priority, skills=skills, github=github, live=live)
 
@@ -190,7 +297,7 @@ def add_project():
                 db.session.commit()
 
                 return redirect(url_for('index'))
-                
+
             except Exception as e:
                 return render_template('add-project.html', error=e)
         if 'skillUrl' in request.form:
@@ -260,7 +367,7 @@ def logout():
 @app.route('/home', methods=['GET', 'POST'])
 @login_required
 def home():
-    
+
     return render_template('home.html')
 
 
@@ -292,9 +399,9 @@ def make_request():
     response = ""
     try:
         while response != 'done':
-            # Send data 
+            # Send data
             message = LOCK_PASSWORD
-            
+
             sock.sendto(message.encode(), server_address)
             #set response to the data received from the server
             response = sock.recv(1024).decode()
@@ -319,7 +426,7 @@ def makeLightRequest(rgb,b, bulb = 0):
         if bulb == 0:
             while response != 'done':
                 # Send data
-                message = f"1{str(rgb)}|{str(b)}" 
+                message = f"1{str(rgb)}|{str(b)}"
                 print(message)
                 sock.sendto(message.encode(), server_address)
                 #set response to the data received from the server
@@ -328,7 +435,7 @@ def makeLightRequest(rgb,b, bulb = 0):
         else:
             while response != 'done':
                 # Send data
-                message = f"2{str(rgb)}|{str(b)}|{bulb}" 
+                message = f"2{str(rgb)}|{str(b)}|{bulb}"
                 print(message)
                 sock.sendto(message.encode(), server_address)
                 #set response to the data received from the server
@@ -345,8 +452,33 @@ def makeLightRequest(rgb,b, bulb = 0):
 
 
 ## End FUNCTIONS ##
-    
-        
+
+## Temp Routs ##
+#testing for another token system##
+@app.route('/token/<token>')
+def token(token):
+    if token == '123456789':
+        return jsonify({'user': '1'})
+    else:
+        return jsonify(json_list = '0')
+
+import ast
+@app.route('/api/ac-records/')
+def ac_records():
+    records = []
+    #open formated ac record file
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    with open(basedir+'/ac-record.txt', 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            #remove /n from end of line
+            line = line.rstrip()
+
+            records.append(ast.literal_eval(line))
+
+    return jsonify(records)
+
+## End Temp Routs ##
 
 
 
