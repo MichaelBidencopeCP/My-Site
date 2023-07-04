@@ -15,7 +15,12 @@ code {
 
 
 html, body, #app, #app>div, #root {
-  background-color: #282c34;
+  background-color: #787878;
   height: 90vh;
   
+}
+
+
+.colorBox:hover{
+  padding: 17px;
 }

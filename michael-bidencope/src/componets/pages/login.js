@@ -3,18 +3,29 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import { Alert } from "@mui/material";
 
 import {getToken} from '../../api.js';
-function LoginPage() {
+import {saveLoginState} from '../../localStorage.js';
 
-    const handleSubmit = (event) => {
+import React from 'react';
+
+function LoginPage({handleTokenState, }) {
+    //before login is clicked, result is 0, after login is clicked, result remains 0 unless unsuccessful
+    const [result, setResult] = React.useState(0);
+    const handleSubmit = (event, setResult) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log(getToken(data.get("username"), data.get("password")));
-
-        console.log({
-            email: data.get("username"),
-            password: data.get("password"),
+        let token = getToken(data.get("username"), data.get("password"));
+        token.then((data) => {token = data;
+            if (token != 0){
+                handleTokenState(token);
+                saveLoginState(token);
+            } 
+            else{
+                //display error message
+                setResult(1);
+            }
         });
     };
 
@@ -31,10 +42,13 @@ function LoginPage() {
                     borderRadius: 1,
                 }}
             >
-                <Typography component="h1" variant="h5">
+                <Typography component="h1" variant="h5" sx={{pb:2}}>
                     Sign in
                 </Typography>
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                
+                {result == 1 && <Alert severity="error">Invalid username or password </Alert>}
+
+                <Box component="form" onSubmit={(event) =>{ handleSubmit(event,setResult)}} noValidate sx={{ mt: 1 }}>
                     <TextField
                         margin="normal"
                         required

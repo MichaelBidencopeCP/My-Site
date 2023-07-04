@@ -7,7 +7,17 @@ import NavMenuDropdown from '../components/dropDownMenu';
 import { titleCase } from '../../utils';
 import { useState } from 'react';
 
-export default function Header({user, page , onPageChange, loginState}){
+import { removeLoginState } from '../../localStorage';
+
+export default function Header({user, page , onPageChange, token}){
+    let loginState = token !== 0;
+
+    const logout = () => {
+        removeLoginState();
+        //reload page
+        window.location.reload();
+    }
+    //page state 0: home, 1:info , 2: contact, 3: login, 4: admin, 5: projectHub(for personal use)
     return(
             <Box sx={{bgcolor: 'primary.main'}}>
                 <DisplayGreaterThanSM>
@@ -24,11 +34,11 @@ export default function Header({user, page , onPageChange, loginState}){
                         </Grid>
                         <Grid item xs={9} align={'right'} >
                             <a onClick={() => {onPageChange(0)}} href='#home'><NavButton >Home</NavButton></a>
-                            <a onClick={() => {onPageChange(1)}} href='#projects'><NavButton >Projects</NavButton></a>
+                            <a onClick={() => {onPageChange(1)}} href='#info'><NavButton >Info</NavButton></a>
                             <a onClick={() => {onPageChange(2)}} href='#contact'><NavButton>Contact</NavButton></a>
-                            {loginState ? <a onClick={() => {onPageChange(3)}} href='#admin'><NavButton>Admin</NavButton></a> : null}
-                            {loginState ? <a onClick={() => {onPageChange(4)}} href='#admin'><NavButton>Logout</NavButton></a> : null}
-                            {!loginState ? <a onClick={() => {onPageChange(3)}} href='#admin'><NavButton>Login</NavButton></a> : null}
+                            {loginState ? <a onClick={() => {onPageChange(4)}} href='#admin'><NavButton>Admin</NavButton></a> : null}
+                            {loginState ? <a onClick={() => {logout()}} href='#home'><NavButton>Logout</NavButton></a> : null}
+                            {!loginState ? <a onClick={() => {onPageChange(3)}} href='#login'><NavButton>Login</NavButton></a> : null}
                         </Grid>
                     </Grid>
                     

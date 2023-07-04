@@ -1,10 +1,9 @@
 
 import MenuIcon from '@mui/icons-material/Menu';
-import { Box, Button, Grid, Icon } from '@mui/material';
-import { Children } from 'react';
+import { Button, Icon } from '@mui/material';
 function NavIcon(){
     const iconContainerStyle = {
-        width : 100,
+        width : '100%',
         height: '100%',
         display: 'flex',
         alignItems: 'center',
