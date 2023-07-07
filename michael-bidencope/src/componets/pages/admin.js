@@ -12,12 +12,12 @@ import { EditThemeControler } from '../features/editTheme.js';
 import React from 'react';
 
 
-function AdminPage({info, handleInfoChange, user, setUserHandler}){
+function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, handleThemeChange, token}){
     // no modal = 0, edit personal info modal = 1, add skill modal = 2, add education modal = 3, add work experience modal = 4
     const [modalShowing, setModalShowing] = React.useState(0);
-    React.useEffect(() => {
-        console.log(modalShowing);
-    }, [modalShowing]);
+    //React.useEffect(() => {
+    //    
+    //}, [modalShowing]);
     const setModal = (modal) => {
         setModalShowing(modal);
     }
@@ -41,10 +41,7 @@ function AdminPage({info, handleInfoChange, user, setUserHandler}){
                 </Grid>
             </Grid>
             <br></br>
-            <EditThemeControler />
-
-
-                    
+            <EditThemeControler currentTheme={currentTheme} handleThemeChange={handleThemeChange} token={token} />
 
         </PageComponent>
     );

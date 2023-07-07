@@ -5,17 +5,20 @@ from typing_extensions import Annotated
 from datetime import datetime, timedelta
 
 from passlib.context import CryptContext
-from jose import JWTError, jwt
+from jose import jwt
 
-from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
+
+
+
+
 class Authentication():
-    _instance = None
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(Authentication, cls).__new__(cls)
-        return cls._instance
+    #__instance = None
+    #def __new__(cls):
+    #    if cls.__instance is None:
+    #        cls.__instance = super(Authentication, cls).__new__(cls)
+    #    return cls.__instance
 
     def __init__(self):
         dotenv.load_dotenv()
@@ -48,4 +51,9 @@ class Authentication():
         encoded_jwt = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return encoded_jwt
 
-    
+
+
+
+def getAuth():
+    auth = Authentication()
+    return auth

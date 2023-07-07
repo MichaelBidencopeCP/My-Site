@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { EditBio } from './componets/features/editBio';
+import { getInitColorSchemeScript } from '@mui/material';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/',
@@ -86,5 +87,61 @@ async function postPersonalInfo(data, token) {
         return 0;
     }
 }
-export { getUser, getToken, postInfo, postPersonalInfo };
 
+async function getThemeForSite(token){
+    let res = 0;
+    if (token) {
+        res = api.get(
+            '/theme',
+            {
+                headers: {
+                    Authorization: 'Bearer ' + token
+                }
+            }
+        ).catch((error) => {
+            return 0;
+        });
+    }
+    else{
+        res = api.get(
+            '/theme',
+        ).catch((error) => {
+            return 0;
+        });
+
+    }
+    res = await res;
+    
+    return res.data;
+}
+
+async function postThemeForSite(theme, token){
+    token = await token;
+    theme = await theme;
+    const response = await api.post(
+        '/theme',
+        {
+            'background_default': theme.background_default,
+            'primary_main': theme.primary_main,
+            'primary_contrast': theme.primary_contrast,
+            'backup_main': theme.backup_main,
+            'backup_contrast': theme.backup_contrast,
+            'secondary_main': theme.secondary_main,
+            'error': theme.error,
+        },
+        {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        }
+    ).catch((error) => {
+        return 0;
+    });
+    if(response.status < 400){
+        return true;
+    }
+    return 0;
+
+}
+
+export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite }

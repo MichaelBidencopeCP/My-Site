@@ -5,32 +5,40 @@ import { ColorPickerBox  } from './colorPickerBox.js';
 
 import { useState, useEffect } from 'react';
 
-function ColorPicker(){
+import { PrimarySmallHeader } from './pirmaryHeader.js';
+
+function ColorPicker({ouputTo}){
     //-1 means no color is selected, 0 means red is selected, 1 means pink is selected, etc.
-    const [selectedColor, setSelectedColor] = useState(-1);
+    const [selectedColorGroup, setSelectedColorGroup] = useState(-1);
+    
+
     const colorSelect = (e) => {
-        console.log(e.target.id);
+        ouputTo(e.target.id);
+        setSelectedColorGroup(-1);
     }
-    const colorGroupSelect = (e) => {
-        
+    
+    const colorGroupSelect = (e) => {  
         //take id in form of colorBoxDropdownContol + id and convert to colorBoxDropdown + id
         let id = e.target.id;
         id = id.replace('colorBoxDropdownContol', '');
-        setSelectedColor(id);
-        
-
+        if (selectedColorGroup == id){
+            id = -1;
+        }
+        setSelectedColorGroup(id);
     }
+    
+
     const fillColorPicker = () => {
-        let colorArray = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, lime, yellow, amber, orange, deepOrange, brown, grey, blueGrey];
-        let outputDict = {'red':[], 'pink':[], 'purple':[], 'deepPurple':[], 'indigo':[], 'blue':[], 'lightBlue':[], 'cyan':[], 'teal':[], 'green':[], 'lightGreen':[], 'lime':[], 'yellow':[], 'amber':[], 'orange':[], 'deepOrange':[], 'brown':[], 'grey':[], 'blueGrey':[]};
-        let names = ['red', 'pink', 'purple', 'deepPurple', 'indigo', 'blue', 'lightBlue', 'cyan', 'teal', 'green', 'lightGreen', 'lime', 'yellow', 'amber', 'orange', 'deepOrange', 'brown', 'grey', 'blueGrey'];
+        let colorArray = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, yellow, amber, orange, deepOrange, brown, grey, blueGrey];
+        let outputDict = {'red':[], 'pink':[], 'purple':[], 'deepPurple':[], 'indigo':[], 'blue':[], 'lightBlue':[], 'cyan':[], 'teal':[], 'green':[], 'lightGreen':[], 'yellow':[], 'amber':[], 'orange':[], 'deepOrange':[], 'brown':[], 'grey':[], 'blueGrey':[]};
+        let names = ['red', 'pink', 'purple', 'deepPurple', 'indigo', 'blue', 'lightBlue', 'cyan', 'teal', 'green', 'lightGreen',  'yellow', 'amber', 'orange', 'deepOrange', 'brown', 'grey', 'blueGrey'];
         for(let x = 0; x < colorArray.length; x++){
-            for(let y = 100; y < 900; y += 100){
+            for(let y = 100; y <= 900; y += 100){
                 outputDict[names[x]].push(colorArray[x][y]);
             }
             outputDict[names[x]] = outputDict[names[x]].map((color, index) => {
-                let id = "colorBoxSelect" + x +'-' + index;
-                return <ColorPickerBox id={id} bgcolor={color} onClick={colorSelect} />
+                let id =  'color' + x +'-' + (index+1)*100;
+                return <ColorPickerBox id={id} bgcolor={color} onClick={colorSelect} inline={'inline-block'}/>
             });
 
         }
@@ -38,13 +46,13 @@ function ColorPicker(){
         //return the boxes
         Object.keys(outputDict).forEach((key, index) => {
             let id = 'colorBoxDropdown' + index;
-            outputDict[key] = selectedColor == index ? <Box id={id} >{outputDict[key]}</Box>:''
+            outputDict[key] = selectedColorGroup == index ? <Box id={id} >{outputDict[key]}</Box>:''
             
         });
         let returns = { colors: outputDict, names: []}
         for(let x = 0; x < names.length; x++){
             let id = 'colorBoxDropdownContol' + x;
-            returns.names.push(<ColorPickerBox id={id} bgcolor={colorArray[x][500]} onClick={colorGroupSelect} />);
+            returns.names.push(<ColorPickerBox id={id} bgcolor={colorArray[x][500]} inline={'inline-block'} onClick={colorGroupSelect} />);
         }
 
         return returns;
@@ -57,22 +65,21 @@ function ColorPicker(){
 
     const placeHolderTiles = () => {
         let output = [];
-        let loopFor = selectedColor;
-        if (selectedColor > colorDict['names'].length/2){
-            loopFor = selectedColor - colorDict['names'].length/2 -1 ;
+        let loopFor = selectedColorGroup;
+        if (selectedColorGroup > colorDict['names'].length/2){
+            loopFor = selectedColorGroup - colorDict['names'].length/2 -1 ;
         }
         for(let x = 0; x < loopFor; x++){
             output.push(<ColorPickerBox key={x} bgcolor={'transparent'}/>);
         }
-        console.log(selectedColor);
         return output;
     };
 
     
     return (
-        <Box>
+        <Box sx={{height:'100%',m:0, p:0}}>
             
-            <Box sx={{width:"100%", display:'inline-flex', mb:0, gap:0 }}>
+            <Box sx={{height:30}}>
                 {
                     //print array of elements from colorDict['names']
                     colorDict['names'].map((element, index) => {
@@ -83,9 +90,9 @@ function ColorPicker(){
                         }
                     })
                 }
-                
             </Box>
-            <Box sx={{width:"100%", height:"100%", display:'inline-flex', m:0}}>
+            <Box sx={{m:0, height:30}}>
+            
                 {
                     //print array of elements from colorDict['names']
                     colorDict['names'].map((element, index) => {
@@ -94,27 +101,22 @@ function ColorPicker(){
                         if(index >= colorDict['names'].length / 2){
                             return element;
                         }
+                        return '';
                     })
                 }
-                
             </Box>
-
-             
+            
+            {selectedColorGroup!=-1? <PrimarySmallHeader>Color </PrimarySmallHeader>:''}
             <Box sx={{display:'inline-flex' }}>
-                {placeHolderTiles()}
+                {/*{placeHolderTiles()}*/}
                 
                 {
                     Object.keys(colorDict['colors']).map((key) => {
                         return colorDict['colors'][key];
                     })
                 }
-                
-
             </Box>
-            
-        </Box>    
-
-        
+        </Box>
         
     )
 }

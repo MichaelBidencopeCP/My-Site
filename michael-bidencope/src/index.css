@@ -14,13 +14,38 @@ code {
 }
 
 
-html, body, #app, #app>div, #root {
-  background-color: #787878;
-  height: 90vh;
+html, #app, #app>div, #root {
+  display: block;
+  height: 100%;
   
 }
 
+.colorBox{
+  position: relative;
+  width: 20%;
+  height: 100px;
+  margin-right: 10px;
+  transition: all 0.4s ease;
+   
+}
 
 .colorBox:hover{
-  padding: 17px;
+  transform: scale(1.5);
+  z-index: 100;
+}
+
+.colorBox.selected{
+  transform: scale(1.5);
+  z-index: 100;
+}
+
+.screenHeightFix {
+  display:block;
+  flex-grow: inherit;
+    
+}
+
+
+.screenCardFix{
+  height: 100%;
 }

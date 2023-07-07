@@ -30,58 +30,62 @@ function LoginPage({handleTokenState, }) {
     };
 
     return (
-        <Container component="main" maxWidth="xs">
-            <Box
-                sx={{
-                    marginTop: 8,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    bgcolor: 'secondary.main',
-                    p: 2,
-                    borderRadius: 1,
-                }}
-            >
-                <Typography component="h1" variant="h5" sx={{pb:2}}>
-                    Sign in
-                </Typography>
+        <Box p={2} m={0} sx={{'backgroundColor':'background.default', height: 'fit-content', minHeight:'100%', overflow:''}}>
+
+            <Container component="main" maxWidth="xs">
                 
-                {result == 1 && <Alert severity="error">Invalid username or password </Alert>}
-
-                <Box component="form" onSubmit={(event) =>{ handleSubmit(event,setResult)}} noValidate sx={{ mt: 1 }}>
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="username"
-                        label="Username"
-                        name="username"
-                        autoComplete="Username"
-                        autoFocus
-                    />
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
-                    />
+                <Box
+                    sx={{
+                        marginTop: 8,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        bgcolor: 'secondary.main',
+                        p: 2,
+                        borderRadius: 1,
+                    }}
+                >
+                    <Typography component="h1" variant="h5" sx={{pb:2}}>
+                        Sign in
+                    </Typography>
                     
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Sign In
-                    </Button>
+                    {result == 1 && <Alert severity="error">Invalid username or password </Alert>}
 
+                    <Box component="form" onSubmit={(event) =>{ handleSubmit(event,setResult)}} noValidate sx={{ mt: 1 }}>
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="username"
+                            label="Username"
+                            name="username"
+                            autoComplete="Username"
+                            autoFocus
+                        />
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                        />
+                        
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{ mt: 3, mb: 2 }}
+                        >
+                            Sign In
+                        </Button>
+
+                    </Box>
                 </Box>
-            </Box>
-        </Container>
+            </Container>
+        </Box>
     );
 }
 export { LoginPage }
