@@ -17,6 +17,7 @@ code {
 html, #app, #app>div, #root {
   display: block;
   height: 100%;
+
   
 }
 
@@ -42,10 +43,27 @@ html, #app, #app>div, #root {
 .screenHeightFix {
   display:block;
   flex-grow: inherit;
-    
 }
 
 
 .screenCardFix{
   height: 100%;
+}
+
+.contianerContinaer{
+  height: 99%;
+  overflow:hidden;
+}
+
+.scrollContainer{
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.scrollCard{
+  width: 103%;
+  height: 99%;
+  overflow: auto;
+  padding-right: 17px;
 }

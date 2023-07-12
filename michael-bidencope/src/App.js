@@ -9,17 +9,20 @@ import { ContactPage } from './componets/pages/contact.js';
 import { LoginPage } from './componets/pages/login.js';
 import { AdminPage } from './componets/pages/admin.js';
 import { InfoPage } from './componets/pages/info';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext } from 'react';
 
 import { getUser, postInfo, postPersonalInfo, getThemeForSite } from './api.js';
 
-import { saveLoginState, getLoginState, removeLoginState } from './localStorage.js';
+import { getLoginState } from './localStorage.js';
+
+export const LoginContext = createContext(null);
 
 function App() {
+    
     const [pageState, setPageState] = useState(0);
     const [user, setUser] = useState({name:'Michael Bidencope', title:'Software Engineer'});
     const [info, setInfo] = useState({bio:'This is a bio'});//[bio, skills, education, workExperience
-    const [token, setToken] = useState(0);
+    const [login, setLogin] = useState({token:0, admin:false, username:'', id:0, exp:-1});
     const [themeFlag, setThemeFlag] = useState(false);
     const [currentTheme, setCurrentTheme] = useState({
         background_default:'#000000',
@@ -31,11 +34,11 @@ function App() {
         error:'#000000'
 
     });
-
+    const [projects, setProjects] = useState([{}]);
 
     useEffect(() => { getUser().then((data) => {setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state}); setInfo({bio:data.bio})}); }, []);
-    useEffect(() => { setToken(getLoginState()); }, []);
-    useEffect(() => { getThemeForSite(token).then((data) => {setCurrentTheme(data);})}, [token] );
+    useEffect(() => { setLogin(getLoginState()); }, []);
+    useEffect(() => { getThemeForSite(login.token).then((data) => {setCurrentTheme(data);})}, [login] );
     
     useEffect(() => { 
         //check that the theme is not the default theme
@@ -48,35 +51,40 @@ function App() {
         console.log(currentTheme);
     }, [currentTheme]);
 
+    useEffect(() => {
+        setPageState(0)
+    }, [login]);
+
     //page state 0: home, 1:info , 2: contact, 3: login, 4: admin, 5: projectHub(for personal use)
     const handlePageChange = (page) => {setPageState(page);};
-    const handleTokenChange = (token) => {setToken(token); setPageState(0); };
+
     const handleInfoChange = (info) => {
         setInfo({bio:info});
-        if (token != 0){
-            let res = postInfo(info, token);
-            if (res.status == 200){
-                return true;
-            }
+        if (login.token != 0){
+            return postInfo(info, login.token).then((res) => {
+                if (res){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            });
+            
         }
         return false;
     };
+
     const handleUserChange = (user) => {
-        setUser(user); 
-        postPersonalInfo(user, token);
+        setUser(user);
+        postPersonalInfo(user, login.token);
     };
+
     const handleThemeChange = (theme) => {
-        
         setCurrentTheme(theme);
         setThemeFlag(true);
     };
-    
-    
-    
-    
-    
+
     const createThemeFromState = (currentTheme) => {
-        
         return createTheme({
             palette: {
                 mode: 'light',
@@ -100,18 +108,18 @@ function App() {
             }
         });
     };
+
     return (
         <ThemeProvider theme={themeFlag? createThemeFromState(currentTheme): theme}>
-                
+            <LoginContext.Provider value={{login, setLogin}}>
                 <CssBaseline />
-                <Header user={user} onPageChange={handlePageChange} token={token}/>
+                <Header user={user} onPageChange={handlePageChange}/>
                 { pageState === 0 ? <HomePage />: null}
                 { pageState === 1 ? <InfoPage info={info} /> : null}
                 { pageState === 2 ? <ContactPage /> : null}
-                { pageState === 3 && token == 0 ? <LoginPage handleTokenState={handleTokenChange} /> : null}
-                { pageState === 4 && token != 0 ? <AdminPage token={token} info={info} handleInfoChange={handleInfoChange} user={user} setUserHandler={handleUserChange} currentTheme={currentTheme} handleThemeChange={handleThemeChange}/> : null}
-
-            
+                { pageState === 3 && login.token == 0 ? <LoginPage /> : null}
+                { pageState === 4 && login.token != 0 ? <AdminPage info={info} handleInfoChange={handleInfoChange} user={user} setUserHandler={handleUserChange} currentTheme={currentTheme} handleThemeChange={handleThemeChange} /> : null}
+            </LoginContext.Provider>
         </ThemeProvider>
     );
 }

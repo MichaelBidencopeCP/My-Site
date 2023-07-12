@@ -7,19 +7,27 @@ import { Alert } from "@mui/material";
 
 import {getToken} from '../../api.js';
 import {saveLoginState} from '../../localStorage.js';
+import {LoginContext} from '../../App.js';
 
-import React from 'react';
+import jwt_decode from "jwt-decode";
 
-function LoginPage({handleTokenState, }) {
+import {useState, useContext} from 'react';
+
+
+function LoginPage({}) {
     //before login is clicked, result is 0, after login is clicked, result remains 0 unless unsuccessful
-    const [result, setResult] = React.useState(0);
+    const [result, setResult] = useState(0);
+    const { login ,setLogin} = useContext(LoginContext);
     const handleSubmit = (event, setResult) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         let token = getToken(data.get("username"), data.get("password"));
         token.then((data) => {token = data;
             if (token != 0){
-                handleTokenState(token);
+                //TODO need to add admin data to response data
+                let tokenData = jwt_decode(token);
+                let admin = tokenData.admin==1?true:false;
+                setLogin({token: token, admin: admin, username: tokenData.sub, id: tokenData.id, exp: tokenData.exp});
                 saveLoginState(token);
             } 
             else{
@@ -89,24 +97,3 @@ function LoginPage({handleTokenState, }) {
     );
 }
 export { LoginPage }
-//import Link from "@mui/material/Link";
-//import Grid from "@mui/material/Grid";
-//<Grid container>
-//    <Grid item xs>
-//        <Link href="#" variant="body2">
-//            Forgot password?
-//        </Link>
-//    </Grid>
-//    <Grid item>
-//        <Link href="#" variant="body2">
-//            {"Don't have an account? Sign Up"}
-//        </Link>
-//    </Grid>
-//</Grid>
-//import FormControlLabel from "@mui/material/FormControlLabel";
-//import Checkbox from "@mui/material/Checkbox";
-
-//<FormControlLabel
-//      control={<Checkbox value="remember" color="primary" />}
-//      label="Remember me"
-///>

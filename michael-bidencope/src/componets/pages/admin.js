@@ -1,5 +1,5 @@
 
-import { Grid } from '@mui/material';
+import { Grid, Box } from '@mui/material';
 
 import { EditBio } from '../features/editBio.js';
 import { AddProject } from '../features/addProjects.js';
@@ -33,15 +33,23 @@ function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, 
                 
 
             <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                     <EditBio info={ info } handleInfoChange={ handleInfoChange } />
-                </Grid>
-                <Grid item xs={12} md={8}>
+                    <br/>
                     <AddProject />
+
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <Box sx={{ ml:{xs:0, sm:0, md:2} }}>
+                    <EditThemeControler currentTheme={currentTheme} handleThemeChange={handleThemeChange} />
+                    </Box>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                    
                 </Grid>
             </Grid>
             <br></br>
-            <EditThemeControler currentTheme={currentTheme} handleThemeChange={handleThemeChange} token={token} />
+            
 
         </PageComponent>
     );

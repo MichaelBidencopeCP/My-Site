@@ -17,9 +17,7 @@ from authentication import Authentication
 
 from jose import JWTError, jwt
 
-from projectTypes import User, Token, TokenData, UserWithHash, Theme
-
-
+from projectTypes import User, Token, TokenData, UserWithHash, Theme, Project
 
 app = FastAPI()
 
@@ -38,9 +36,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
- 
-
 #lifecycle events
 @app.on_event("startup")
 async def create_database_if_not_exists():
@@ -56,6 +51,7 @@ def dbCommit():
 def getAuth():
     auth = Authentication()
     return auth
+
 def get_user(username:str):
     db = getDB().cursor()
     db.execute("SELECT * FROM users WHERE username = ?", (username,))
@@ -94,6 +90,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     if user is None:
         raise credentials_exception
     return user
+
 def get_current_user_or_none(token: Annotated[str, Depends(oauth2_scheme)]):
     if token is None:
         return None
@@ -124,12 +121,11 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         )
     access_token_expires = timedelta(minutes=30)
     userAuth = {"username": user.username, "passwordHash": user.passwordHash}
-    user = auth.authenticate_user(userAuth, form_data.password)
+    user = auth.authenticate_user(user, form_data.password)
     access_token = auth.create_access_token(
-        data={"sub": user['username']}, expires_delta=access_token_expires
+        data={"id":user.id,"admin":user.admin,"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
-
 
 @app.get("/authorInfo")
 def get_author_info(db: sqlite3.Connection = Depends(getDB)) -> Union[dict, str]:
@@ -250,4 +246,31 @@ async def setSiteTheme(request: Request, db: sqlite3.Connection = Depends(getDB)
     return {
         "response":flag
     }
+
+
+
+@app.post("/projects")
+def create_proejct(project: Project, db:sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) :
+    db = db.cursor()
+    if user.admin != 1:
+        db.close()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    #insert project into database
+    db.execute("INSERT INTO projects (title, description, image, link) VALUES (?, ?, ?, ?)", (project.title, project.description, project.image, project.link))
+    projectId = db.lastrowid
+    #insert technologies into database
+    for x in project.technologies:
+        db.execute("INSERT INTO technologies (name, project_id) VALUES (?, ?)", (x, projectId))
+    db.close()
+    dbCommit()
+    return {
+        "response":True
+    }
+
+ 
+        
 

@@ -3,10 +3,9 @@
 
 
 // Saves the token to local storage
-async function saveLoginState(token){
-    token = await token;
-    console.log(token)
-    localStorage.setItem("user", token);
+async function saveLoginState(login){
+    login = await login;
+    localStorage.setItem("login", {...login});
 }
 
 

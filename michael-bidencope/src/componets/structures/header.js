@@ -1,21 +1,21 @@
-import { Box, Grid,Typography, Menu, MenuItem } from '@mui/material';
+import { Box, Grid,Typography } from '@mui/material';
 import {DisplayOnlySM, DisplayGreaterThanSM} from '../components/display';
 import { NavButton } from '../components/navComponents';
 import NavMenuDropdown from '../components/dropDownMenu';
-
-
 import { titleCase } from '../../utils';
-import { useState } from 'react';
-
+import { useContext } from 'react';
 import { removeLoginState } from '../../localStorage';
+import { LoginContext } from '../../App';
 
-export default function Header({user, page , onPageChange, token}){
-    let loginState = token !== 0;
+export default function Header({user, onPageChange}){
+    let {login, setLogin }= useContext(LoginContext);
+    let loginState = login.token !== 0;
+    
+    //maybe add selected button?
 
     const logout = () => {
         removeLoginState();
-        //reload page
-        window.location.reload();
+        setLogin({token: 0, admin: false});
     }
     //page state 0: home, 1:info , 2: contact, 3: login, 4: admin, 5: projectHub(for personal use)
     return(
@@ -60,12 +60,4 @@ export default function Header({user, page , onPageChange, token}){
 
     );
 }
-//<NavIcon id={'dropDown'} onClick={()=> {setDropDownState(true)}}/>
-//                            <Menu open={dropDownState} onClose={()=> {setDropDownState(false)}} anchorEl={'dropDown'}>
-//                                <MenuItem onClick={() => {onPageChange(0)}}>Home</MenuItem>
-//                                <MenuItem onClick={() => {onPageChange(1)}}>Projects</MenuItem>
-//                                <MenuItem onClick={() => {onPageChange(2)}}>Contact</MenuItem>
-//                                {loginState ? <MenuItem onClick={() => {onPageChange(3)}}>Admin</MenuItem> : null}
-//                                {loginState ? <MenuItem onClick={() => {onPageChange(4)}}>Logout</MenuItem> : null}
-//                                {!loginState ? <MenuItem onClick={() => {onPageChange(3)}}>Login</MenuItem> : null}
-//                            </Menu>
+

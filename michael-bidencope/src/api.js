@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { EditBio } from './componets/features/editBio';
-import { getInitColorSchemeScript } from '@mui/material';
+import { getInitColorSchemeScript, getTablePaginationUtilityClass } from '@mui/material';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/',
@@ -53,13 +53,13 @@ async function postInfo(bio, token) {
                 'Authorization': 'Bearer ' + token
             }
         }
-    );
+    ).catch(function (error) {
+        return false;
+    });
     if(response.status < 400){
         return true;
     }
-    else{
-        return 0;
-    }
+    return false;
 }
 async function postPersonalInfo(data, token) {
     token = await token;
@@ -144,4 +144,45 @@ async function postThemeForSite(theme, token){
 
 }
 
-export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite }
+//gets tags for a project (ie. docker, fastApi and React ) if no project is given it will return all tags
+async function getProejectTags(proejct = 0){
+    //check if tags are in memory for this proejct if not get them from the server
+    //if project in id in memory return tags, else continue
+
+    //request server with project id
+    
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    await sleep(50);
+    console.log('went')
+
+}
+
+async function postProjectInfo(project, token){
+    token = await token;
+    project = await project;
+
+    const response = await api.post(
+        '/projects',
+        {
+            'name': project.name,
+            'discription': project.discription,
+            'tags': JSON.stringify([...project.tags]),
+        },
+        {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        }
+    ).catch((error) => {
+        console.log(error);
+        return false;
+    });
+    if(response.status < 400){
+        return true;
+    }
+    return false;
+}
+
+
+
+export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo }

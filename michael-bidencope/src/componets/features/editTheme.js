@@ -6,44 +6,26 @@ import { PrimarySmallHeader } from '../components/pirmaryHeader';
 
 import { red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, lime, yellow, amber, orange, deepOrange, brown, grey, blueGrey } from '@mui/material/colors';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { BackupButton } from '../components/backupButtons';
 
 import { postThemeForSite } from '../../api'
 
-function EditThemeControler({currentTheme, handleThemeChange, token}) {
+import { LoginContext } from '../../App';
+
+function EditThemeControler({currentTheme, handleThemeChange}) {
     const [selectedThemeColor, setSelectedThemeColor] = useState(-1);
     const [colorInput, setColorInput] = useState('');
-    const [resFlag, setResFlag] = useState(false); 
+    const [resFlag, setResFlag] = useState(0); 
+
+    const {login, } = useContext(LoginContext)
+    const token = login.token;
+
+
     const handleColorInput = (id) =>
     {
         setColorInput(id);
     }
-
-    const invertColor =  (currentTheme) => {
-        let hex = currentTheme.primary_main;
-        const padZero = (str, len) => {
-            len = len || 2;
-            var zeros = new Array(len).join('0');
-            return (zeros + str).slice(-len);
-        };
-        if (hex.indexOf('#') === 0) {
-            hex = hex.slice(1);
-        }
-        // convert 3-digit hex to 6-digits.
-        if (hex.length === 3) {
-            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-        }
-        if (hex.length !== 6) {
-            throw new Error('Invalid HEX color.');
-        }
-        // invert color components
-        var r = (255 - parseInt(hex.slice(0, 2), 16)).toString(16),
-            g = (255 - parseInt(hex.slice(2, 4), 16)).toString(16),
-            b = (255 - parseInt(hex.slice(4, 6), 16)).toString(16);
-        // pad each with zeros and return
-        return '#' + padZero(r) + padZero(g) + padZero(b);
-    };
     const handleSelectedThemeColorChange = (color) => {
         if (selectedThemeColor == color) {
             setSelectedThemeColor(-1);
@@ -83,23 +65,16 @@ function EditThemeControler({currentTheme, handleThemeChange, token}) {
                     break;
             }
             handleThemeChange(holdState);
-            console.log(currentTheme)
         }
     }, [colorInput])
     
-    useEffect(() => {
-        console.log(currentTheme);
-    }, [currentTheme])
     const saveTheme = () => {
         postThemeForSite(currentTheme, token).then((res) => {
-        
             if (res) {
-                console.log('Theme Saved');
-                setResFlag(false);
+                setResFlag(1);
             }
             else {
-
-                setResFlag(true);
+                setResFlag(2);
             }
         });
     }
@@ -109,14 +84,12 @@ function EditThemeControler({currentTheme, handleThemeChange, token}) {
             <PrimaryHeader>Edit Theme</PrimaryHeader>
             <BackupButton onButton={saveTheme} >Save</BackupButton>
             <PrimarySmallHeader>Current Theme</PrimarySmallHeader>
-            {resFlag ? <Alert severity="error" sx={{mb:2, mt:1}} >Failed to save</Alert>: ''}
+            {resFlag === 1 ? <Alert severity="error" sx={{mb:2, mt:1}} >Failed to save</Alert>: ''}
+            {resFlag === 2 ? <Alert severity="success" sx={{mb:2, mt:1}} >Saved</Alert>: ''}
             
             <SetThemeSelector currentTheme={currentTheme} handleSelectedThemeColorChange={handleSelectedThemeColorChange} selectedThemeColor={selectedThemeColor}/>
             <PrimarySmallHeader>Color Gropus</PrimarySmallHeader>
             <ColorPicker ouputTo={handleColorInput} />
-
-            
-
 
         </Box>
     );

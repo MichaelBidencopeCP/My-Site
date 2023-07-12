@@ -9,6 +9,8 @@ from jose import jwt
 
 from fastapi.security import OAuth2PasswordBearer
 
+from projectTypes import UserWithHash
+
 
 
 
@@ -34,10 +36,10 @@ class Authentication():
         return self.pwd_context.hash(password)
     
     #takes the result of get user and password to authenticate
-    def authenticate_user(self, user: dict, password: str):
+    def authenticate_user(self, user: UserWithHash , password: str):
         if not user:
             return False
-        if not self.verify_password( password, user['passwordHash']):
+        if not self.verify_password( password, user.passwordHash):
             return False
         return user
         

@@ -15,11 +15,11 @@ class User(BaseModel):
     state: str
     admin: int
 
-class TokenData(BaseModel):
-    username: str = None
-
 class UserWithHash(User):
     passwordHash: str
+
+class TokenData(BaseModel):
+    username: str = None
 
 class Theme(BaseModel):
     background_default: str
@@ -29,3 +29,11 @@ class Theme(BaseModel):
     backup_contrast: str
     secondary_main: str
     error: str
+
+class Project(BaseModel):
+    id: int
+    name: str
+    description: str
+    technologies: dict
+    image: str
+    link: str
