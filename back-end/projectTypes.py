@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-
+from typing import Union
+from typing_extensions import Annotated
 
 class Token(BaseModel):
     access_token: str
@@ -37,3 +38,8 @@ class Project(BaseModel):
     technologies: dict
     image: str
     link: str
+
+class Technologie(BaseModel):
+    id: Union[int, None]
+    name: str
+    image: str

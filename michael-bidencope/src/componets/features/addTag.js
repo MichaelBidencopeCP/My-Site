@@ -1,59 +1,69 @@
-import { useRef } from 'react';
-
-import { Dialog, DialogTitle, Box, FormControl, InputLabel, Input } from '@mui/material';
-
+import { Dialog, DialogTitle, FormControl, InputLabel, Input, Alert } from '@mui/material';
 import { BackupButton } from '../components/backupButtons';
 
-import { SelectedTags } from '../components/selectedTags.js'
+import { useContext, useState } from 'react';
 
+import { postNewTag } from '../../api';
+import { LoginContext } from '../../App';
 
+function AddTagsToSite({modalShowing, setModalShowing, reloadTags}) {
+    const [alert, setAlert ] = useState(0);
 
-function AddTagsToSite({modalShowing, setModalShowing}) {
-    
+    const {login,} = useContext(LoginContext)
+    const token = login.token
     
     const handleClose = () => {
         setModalShowing(0);
     }
     const handleSubmit = (event) => {
         let flag = false;
-        let tag  = {tooltip: '', svgIcon: ''}
+        let tag  = {name: '', image: ''}
         event.preventDefault();
-        (event.target.elements.tooltip.value === '') ? tag.tooltip = event.target.elements.tooltip.value :flag = true;
-        (event.target.elements.svgIcon.value === '') ? tag.svgIcon = event.target.elements.svgIcon.value :flag = true;
+
+        tag.name = event.target.elements.name.value;
+        tag.image = event.target.elements.image.value;
+        if(event.target.elements.name.value == '' || event.target.elements.image.value == '') { flag = true;}
         if(flag){
-            alert('Please fill out all fields');
+            setAlert(1)
             return;
         }
+        
+        postNewTag(tag, token).then(async (res) =>{
+            if(await res == true){
+                setAlert(2);
+                reloadTags[1]();
+            }
+            if(await res == false){
+                setAlert(1);
+            }
+        });
 
-        handleClose();
+        
     }
-    const open = modalShowing
+    const open = modalShowing === 2? true:false
 
     return (
-        <Dialog  onClose={handleClose} open={open} maxWidth={'md'} fullWidth={true}>
+        <Dialog onClose={handleClose} open={open} maxWidth={'md'} fullWidth={true}>
             
-            <DialogTitle >Site Author Information</DialogTitle>
-                <Box  sx={{
-                    margin: 2
-
-                }}>
-                    <form onSubmit={handleSubmit}>
-                        <FormControl fullWidth sx={{mb:2}}>
-                            <InputLabel fullWidth htmlFor="tooltip">ToolTip</InputLabel>
-                            <Input id="tooltip" aria-describedby="ToolTip" placeholder={'teting'}/>    
-                        </FormControl>
-                        <br/>
-                        
-                        <SelectedTags />
-                        
-                        <br/>
-                        <BackupButton type={'submit'}>Save</BackupButton>
-                        <BackupButton onButton={handleClose}>Cancel</BackupButton>
-                    </form>
-                </Box>
-
+            <DialogTitle>Add Technology Tag</DialogTitle>
+            {alert === 2 && <Alert sx={{mb:0}} severity="success">Saved</Alert>}
+            {alert === 1 && <Alert sx={{mb:0}} severity="error">Error Saving Tag</Alert>}
+                <form onSubmit={handleSubmit} style={{padding:'2%', paddingTop:'0'}}>
+                    
+                    <FormControl fullWidth sx={{mb:2}}>
+                        <InputLabel fullWidth htmlFor="name">Name</InputLabel>
+                        <Input id="name" aria-describedby="Name" placeholder={'Name'}/>    
+                    </FormControl>
+                    <br/>
+                    <FormControl fullWidth sx={{mb:2}}>
+                        <InputLabel fullWidth htmlFor="image">SVG</InputLabel>
+                        <Input id="image" aria-describedby="Image" placeholder={'Image'}/>    
+                    </FormControl>
+                    <br/>
+                    <BackupButton type={'submit'}>Save</BackupButton>
+                    <BackupButton onButton={handleClose}>Close</BackupButton>
+                </form>
         </Dialog>
-
     )
 }
 

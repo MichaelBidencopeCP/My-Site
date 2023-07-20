@@ -17,7 +17,7 @@ from authentication import Authentication
 
 from jose import JWTError, jwt
 
-from projectTypes import User, Token, TokenData, UserWithHash, Theme, Project
+from projectTypes import User, Token, TokenData, UserWithHash, Theme, Project, Technologie
 
 app = FastAPI()
 
@@ -127,7 +127,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/authorInfo")
+@app.get("/author-info")
 def get_author_info(db: sqlite3.Connection = Depends(getDB)) -> Union[dict, str]:
     db = db.cursor()
     user = db.execute("SELECT * FROM users WHERE admin = 1").fetchone()
@@ -164,8 +164,8 @@ def get_author_info(db: sqlite3.Connection = Depends(getDB)) -> Union[dict, str]
             detail="No user found",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-@app.post("/authorInfo")
+#
+@app.post("/author-info")
 async def edit_page_author_info(request: Request,  db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(get_current_user))  -> Union[dict, bool]:
     bio =  await request.json()
     bio = bio['bio']
@@ -185,8 +185,9 @@ async def edit_page_author_info(request: Request,  db: sqlite3.Connection = Depe
     return {
         "response":True
     }
-        
-@app.post("/authorPersonalInfo")
+
+#edit the personal info of the author       
+@app.post("/author-personal-info")
 async def edit_page_author_personal_info(request: Request,  db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(get_current_user))  -> Union[dict, bool]:
     personalInfo =  await request.json()
     print(personalInfo)
@@ -206,7 +207,7 @@ async def edit_page_author_personal_info(request: Request,  db: sqlite3.Connecti
     return {
         "response":True
     }
-
+#returns the theme for the site based on the user
 @app.get("/theme" , response_model=Theme)
 async def setSiteTheme(db: sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user_or_none)) -> Union[dict, str]:
     db = db.cursor()
@@ -222,6 +223,7 @@ async def setSiteTheme(db: sqlite3.Connection = Depends(getDB), user: User = Dep
     db.close()
     return theme
 
+#lets logged in user to change the theme of the site
 @app.post("/theme")
 async def setSiteTheme(request: Request, db: sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) -> Union[dict, str]:
     db = db.cursor()
@@ -247,10 +249,69 @@ async def setSiteTheme(request: Request, db: sqlite3.Connection = Depends(getDB)
         "response":flag
     }
 
+#get list of all technologies on site to be used in project creation
+@app.get("/all-technologies")
+async def getProjectTechnologies(db : sqlite3.Connection = Depends(getDB)) -> list:
+    db = db.cursor()
+    technologies = db.execute("SELECT id, name, image FROM technologies").fetchall()
+    returns = []
+    for x in technologies:
+        returns.append(Technologie(id=x[0], name=x[1], image=x[2]))
 
+    db.close()
+    return returns
 
+#used to add tags to the site, from there they can be assigned to projects
+@app.post("/add-technology")
+async def postProjectTechnology(technology: Technologie, db:sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) -> int:
+    if user.admin != 1:
+        db.close()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    db = db.cursor()
+    try:
+        res = db.execute("INSERT INTO technologies (name, image) VALUES (?,?)", (technology.name, technology.image))
+    except:
+        db.close()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to save data",
+        )
+    dbCommit()
+    db.close()
+    return res.lastrowid
+
+#remove technology from site
+@app.post("/remove-technology")
+async def deleteProjectTechnology(tags:dict, db:sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) -> bool:
+    if user.admin != 1:
+        db.close()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    db = db.cursor()
+    try:
+        for x in tags['tags']:
+            db.execute("DELETE FROM technologies WHERE id = ?", (x,))
+    except Exception as e:
+        print(e)
+        db.close()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to save data",
+        )
+    dbCommit()
+    db.close()
+    return True
+
+#post request to add project can only be accessed by admin user
 @app.post("/projects")
-def create_proejct(project: Project, db:sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) :
+async def create_proejct(project: Project, db:sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) :
     db = db.cursor()
     if user.admin != 1:
         db.close()
@@ -272,5 +333,17 @@ def create_proejct(project: Project, db:sqlite3.Connection = Depends(getDB), use
     }
 
  
-        
-
+#get all projects from database
+@app.get("/projects")
+def get_projects(db:sqlite3.Connection = Depends(getDB)) -> Union[dict, str]:
+    db = db.cursor()
+    projects = db.execute("SELECT * FROM projects").fetchall()
+    projectList = []
+    for x in projects:
+        #select the selected users info from the database
+        project = Project(title=x[1], description=x[2], image=x[3], link=x[4])
+        projectList.append(project)
+    db.close()
+    return {
+        "projects":projectList
+    }

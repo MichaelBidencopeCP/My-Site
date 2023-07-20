@@ -19,7 +19,7 @@ function EditPersonalInfo({modalShowing, setModalShowing, user, setUser}) {
         setUser({name: name, title: title, email: email, city: city, state: state});
         handleClose();
     }
-    const open = modalShowing
+    const open = modalShowing === 1? true:false
 
     return (
         <Dialog  onClose={handleClose} open={open} maxWidth={'md'} fullWidth={true}>

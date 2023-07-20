@@ -10,7 +10,7 @@ function SelectedTags({selectedTags = [{name: '', svg: ''}], handleSetSelectedTa
         <Box>
             {
                 selectedTags.map(tag => (
-                        <TagElement key={tag.id} hoverText={tag.name} svgIcon={tag.svg} id={tag.id} onClick={onClickDo} />
+                        <TagElement key={tag.id} hoverText={tag.name} svgIcon={tag.image} id={tag.id} onClick={onClickDo} />
                     )
                 )
             }

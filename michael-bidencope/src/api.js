@@ -9,7 +9,7 @@ const api = axios.create({
 
 //test getting user with id 1
 async function getUser(){
-    const response = await api.get('/authorInfo');
+    const response = await api.get('/author-info');
     return response.data;
 }
 
@@ -43,7 +43,7 @@ async function postInfo(bio, token) {
     token = await token;
     bio = await bio;
     const response = await api.post(
-        '/authorInfo',
+        '/author-info',
         {
             bio: bio
         },
@@ -65,7 +65,7 @@ async function postPersonalInfo(data, token) {
     token = await token;
     data = await data;
     const response = await api.post(
-        '/authorPersonalInfo',
+        '/author-personal-info',
         {
             'name': data.name,
             'title': data.title,
@@ -145,18 +145,59 @@ async function postThemeForSite(theme, token){
 }
 
 //gets tags for a project (ie. docker, fastApi and React ) if no project is given it will return all tags
-async function getProejectTags(proejct = 0){
-    //check if tags are in memory for this proejct if not get them from the server
-    //if project in id in memory return tags, else continue
+async function getProejectTags(){
 
-    //request server with project id
-    
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
-    await sleep(50);
-    console.log('went')
-
+    const response = api.get(
+        '/all-technologies'
+        
+    ).catch(
+        (error) =>
+        {
+            return false;
+        }
+    );
+    return await response;
 }
 
+async function removeProjectTags(tags, token){
+    await tags;
+    await token;
+    let res = api.post(
+        '/remove-technology',
+        {
+            'tags':tags
+        },
+        {
+            headers:{
+                'Authorization': 'Bearer ' + token
+            }
+        }
+    ).then((data)=>{return data.data}).catch(()=>{return false;});
+    return res
+}
+
+async function postNewTag(tag, token){
+    tag = await tag
+    token = await token
+    const response = api.post(
+        '/add-technology',
+        {
+            ...tag
+        },
+        {
+            headers:{
+                Authorization: 'Bearer ' + token
+            }
+        }
+    ).then(() =>{
+         return response.data
+    }).catch((error)=>{
+        return false
+    });
+    return response;
+}
+
+//get projects
 async function postProjectInfo(project, token){
     token = await token;
     project = await project;
@@ -185,4 +226,5 @@ async function postProjectInfo(project, token){
 
 
 
-export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo }
+
+export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags }

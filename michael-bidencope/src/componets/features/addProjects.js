@@ -2,18 +2,18 @@ import { Box, FormControl, Input, InputLabel, TextareaAutosize } from '@mui/mate
 import { PrimaryHeader } from '../components/pirmaryHeader';
 import { styled } from '@mui/system';
 import { AddTagsToProject } from '../components/projectTagSelector';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRef } from 'react';
 import { BackupButton } from '../components/backupButtons';
 import { postProjectInfo } from '../../api'; 
 import { useContext } from 'react';
 import { LoginContext } from '../../App';
 
-function AddProject() {
+function AddProject({reloadTags}) {
     const [selectedTags, setSelectedTags] = useState([]);
     const {login,} = useContext(LoginContext);
     
-
+    
     const discription = useRef();
     const name = useRef();
 
@@ -38,17 +38,13 @@ function AddProject() {
         let project = {};
         (event.target.elements.name.value !== '') ? project.name = event.target.elements.name.value :flag = true;
         (discription.value !== '') ? project.discription = discription.value :flag = true;
-        console.log(project)
         if(flag){
             alert('Please fill out all fields');
             return;
         }
         project.tags = selectedTags.map((tag) => tag.id);
         //submit threw api
-        console.log(project);
         postProjectInfo(project, localStorage.getItem('token')).then((response) => { console.log(response) });
-
-
     }
     return (
         <Box mx={{xs:0, sm:0}}>
@@ -63,7 +59,7 @@ function AddProject() {
                     <br/>
                 
                 
-                    <AddTagsToProject selectedTags={selectedTags} setSelectedTags={handleSetSelectedTags} />
+                    <AddTagsToProject selectedTags={selectedTags} setSelectedTags={handleSetSelectedTags} reloadTags={reloadTags}/>
                         
                     
                     <FormControl fullWidth sx={{mb:2}}>

@@ -6,17 +6,33 @@ import { PrimarySmallHeader } from './pirmaryHeader';
 import { useEffect, useState } from 'react';
 import { getProejectTags } from '../../api.js';
 //used for admin page to add a tag to a project when editing or creating a project.
-function AddTagsToProject({selectedTags, setSelectedTags}) {
+function AddTagsToProject({selectedTags, setSelectedTags, reloadTags=[true, ()=>{}]}) {
     
     const [unselectedTags, setUnselectedTags] = useState([]);
 
     //get all tags
     useEffect(() => {
-        getProejectTags(0).then((data) => {
-            setUnselectedTags(data.tags);
-        })
-    }, [])
+        restTags()
+        if (reloadTags[0]){
+            getProejectTags().then(async (data) => {
+                setUnselectedTags(data.data);
+            })
+            reloadTags[1]()
+        }
+
+        
+    }, [reloadTags[0]])
     
+    const restTags = () => {
+        let selected = [...selectedTags];
+        let unselected = [...unselectedTags];
+        unselected.push(selected)
+        selected = []
+        setSelectedTags(selected);
+        setUnselectedTags(unselected);
+    }
+
+
     //when a tag is selected move it to opposite list
     const handleTagSelection = (tag) => {
         let selected = [...selectedTags];
