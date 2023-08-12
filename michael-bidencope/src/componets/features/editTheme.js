@@ -17,6 +17,7 @@ function EditThemeControler({currentTheme, handleThemeChange}) {
     const [selectedThemeColor, setSelectedThemeColor] = useState(-1);
     const [colorInput, setColorInput] = useState('');
     const [resFlag, setResFlag] = useState(0); 
+    const [holdCurrentTheme, setHoldCurrentTheme] = useState(0);
 
     const {login, } = useContext(LoginContext)
     const token = login.token;
@@ -66,10 +67,12 @@ function EditThemeControler({currentTheme, handleThemeChange}) {
             handleThemeChange(holdState);
         }
     }, [colorInput])
-    
+    useEffect(() => {
+        setHoldCurrentTheme({...currentTheme});
+    }, [])
+
     const resetTheme = () => {
-        const holdCurretTheme = {...currentTheme}
-        handleThemeChange(holdCurretTheme);
+        handleThemeChange({...holdCurrentTheme});
     }
 
     const saveTheme = () => {

@@ -9,19 +9,22 @@ import { ContactPage } from './componets/pages/contact.js';
 import { LoginPage } from './componets/pages/login.js';
 import { AdminPage } from './componets/pages/admin.js';
 import { InfoPage } from './componets/pages/info';
-import { useState, useEffect, createContext } from 'react';
+import { useState, useEffect, createContext, useMemo, useRef } from 'react';
 
-import { getUser, postInfo, postPersonalInfo, getThemeForSite } from './api.js';
+import { getUser, postInfo, postPersonalInfo, getThemeForSite, getUpdateValue } from './api.js';
 
-import { getLoginState } from './localStorage.js';
+import {  checkForUpdate, getLoginState, getThemeFromLocal, getUserInfoLocal, saveTheme, saveUserInfo, setUpdateValue } from './localStorage.js';
 
 export const LoginContext = createContext(null);
+export const UpdateContext = createContext(null);
+
 
 function App() {
-    
+    //update is used to denote a change in the database that requires a cache update, if update if false then no update is needed
+    const [update, setUpdate] = useState({update:false, updatedProjects:false, updatedUserInfo:false, updatedTheme:false, updatedTags:false});    
     const [pageState, setPageState] = useState(0);
     const [user, setUser] = useState({name:'Michael Bidencope', title:'Software Engineer'});
-    const [info, setInfo] = useState({bio:'This is a bio'});//[bio, skills, education, workExperience
+    const [info, setInfo] = useState({bio:'This is a bio'});
     const [login, setLogin] = useState({token:0, admin:false, username:'', id:0, exp:-1});
     const [themeFlag, setThemeFlag] = useState(false);
     const [currentTheme, setCurrentTheme] = useState({
@@ -32,13 +35,109 @@ function App() {
         backup_contrast:'#000000',
         secondary_main:'#000000',
         error:'#000000'
-
     });
     const [projects, setProjects] = useState([{}]);
+    const initialRender = useRef(true);
+    useEffect(() => {
+        
+        //check update value to see if cache needs to be updated
+        getUpdateValue().then((data) => {
+            if(initialRender.current){
+                let updateCheck = checkForUpdate(data);
+                if (updateCheck){
+                    let hold = {...update}
+                    hold.update = updateCheck;
+                    setUpdate(hold);
+                    
+                }
+            }
+        }).then(() => { initialRender.current = false;} );
 
-    useEffect(() => { getUser().then((data) => {setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state}); setInfo({bio:data.bio})}); }, []);
+    }, []);
+    //set login from cache if token expired state will be set to logged out values
     useEffect(() => { setLogin(getLoginState()); }, []);
-    useEffect(() => { getThemeForSite(login.token).then((data) => {setCurrentTheme(data);})}, [login] );
+    //set user info from api or cache
+    useMemo(() => {
+        if(initialRender.current){
+            return;
+        }
+        let updateFlag = false;
+        if(update.update === false){
+            let data = getUserInfoLocal()
+            if(data){
+                setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state});
+                setInfo({bio:data.bio});
+            }
+            else{
+                updateFlag = true;
+            }
+        }
+        if(update.update || updateFlag){ 
+            getUser().then((data) => {
+                if(update.updatedUserInfo == false){
+                    setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state});
+                    setInfo({bio:data.bio})
+                    //save user info to cache
+                    saveUserInfo({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state, bio:data.bio})
+                    let hold = {...update}
+                    hold.updatedUserInfo = true;
+                    setUpdate(hold);
+                }
+            });
+        }
+        
+    }, [initialRender.current]);
+    
+    //set theme from api or cache
+    useMemo(() => {
+        if(initialRender.current){
+            return;
+        }
+        let flagToUpdateTheme = false;
+        if(update.update === false){
+            if(login.token != 0){
+                let localTheme = getThemeFromLocal(login.id);
+                if(localTheme){
+                    setCurrentTheme(localTheme);
+                }
+                else{
+                    localTheme = getThemeFromLocal();
+                    if(localTheme){
+                        setCurrentTheme(localTheme);
+                    }
+                    else{
+                        flagToUpdateTheme = true;
+                    }
+                }
+            }
+        
+            else{
+                let localTheme = getThemeFromLocal();
+                if(localTheme){
+                    setCurrentTheme(localTheme);
+                }
+                else{
+                    flagToUpdateTheme = true;
+                }
+            }
+        }
+        if(update.update || flagToUpdateTheme){
+            if(update.updatedProjects == false){
+                getThemeForSite(login.token).then((data) => {
+                    setCurrentTheme(data);
+                    if(login.id != 0){
+                        saveTheme(data, login.id);
+                    }
+                    else{
+                        saveTheme(data);
+                    }
+                    let hold = {...update};
+                    hold.updatedTheme = true;
+                    setUpdate(hold);
+                });
+            }
+        }
+    }, [initialRender.current]);
     
     useEffect(() => { 
         //check that the theme is not the default theme
@@ -48,7 +147,6 @@ function App() {
         else{
             setThemeFlag(false);
         }
-        console.log(currentTheme);
     }, [currentTheme]);
 
     useEffect(() => {
@@ -112,13 +210,15 @@ function App() {
     return (
         <ThemeProvider theme={themeFlag? createThemeFromState(currentTheme): theme}>
             <LoginContext.Provider value={{login, setLogin}}>
+                <UpdateContext.Provider value={{update, setUpdate}}>
                 <CssBaseline />
                 <Header user={user} onPageChange={handlePageChange}/>
-                { pageState === 0 ? <HomePage />: null}
-                { pageState === 1 ? <InfoPage info={info} /> : null}
-                { pageState === 2 ? <ContactPage /> : null}
-                { pageState === 3 && login.token == 0 ? <LoginPage /> : null}
-                { pageState === 4 && login.token != 0 ? <AdminPage info={info} handleInfoChange={handleInfoChange} user={user} setUserHandler={handleUserChange} currentTheme={currentTheme} handleThemeChange={handleThemeChange} /> : null}
+                    { pageState === 0 ? <HomePage />: null}
+                    { pageState === 1 ? <InfoPage info={info} /> : null}
+                    { pageState === 2 ? <ContactPage /> : null}
+                    { pageState === 3 && login.token == 0 ? <LoginPage /> : null}
+                    { pageState === 4 && login.token != 0 ? <AdminPage info={info} handleInfoChange={handleInfoChange} user={user} setUserHandler={handleUserChange} currentTheme={currentTheme} handleThemeChange={handleThemeChange} /> : null}
+                </UpdateContext.Provider>
             </LoginContext.Provider>
         </ThemeProvider>
     );

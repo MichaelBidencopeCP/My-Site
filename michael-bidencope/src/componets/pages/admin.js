@@ -13,6 +13,7 @@ import { AddTagsToSite } from '../features/addTag.js';
 import { RemoveTags } from '../features/removeTags.js';
 
 import { useState } from 'react';
+import { EditProject } from '../features/editProjects.js';
 
 
 function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, handleThemeChange, token}){
@@ -36,11 +37,16 @@ function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, 
             <EditPersonalInfo modalShowing={modalShowing} setModalShowing={setModal} user={user} setUser={setUserHandler}/>
             <AddTagsToSite modalShowing={modalShowing} setModalShowing={setModal} reloadTags={[reloadTags,handleSetReload]} />
             <RemoveTags modalShowing={modalShowing} setModalShowing={setModal} reloadTags={[reloadTags,handleSetReload]}/>
+            <EditProject modalShowing={modalShowing} setModalShowing={setModal} />
             <BackupButton onButton={() => {setModal(1)}}>Edit Personal Info</BackupButton>
+            <BackupButton onButton={() => {setModal(4)}}>Edit Projects</BackupButton>
             <br/>
             <BackupButton onButton={() => {setModal(2)}}>Add Tag</BackupButton>
             <BackupButton onButton={() => {setModal(3)}}>Remove Tag</BackupButton>
+            
             <BackupButton >Add Education</BackupButton>
+            
+            
                 
 
             <Grid container spacing={2}>
@@ -48,6 +54,7 @@ function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, 
                     <EditBio info={ info } handleInfoChange={ handleInfoChange } />
                     <br/>
                     <AddProject reloadTags={[reloadTags,handleSetReload]}/>
+                    
 
                 </Grid>
                 <Grid item xs={12} md={6}>

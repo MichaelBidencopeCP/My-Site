@@ -1,6 +1,4 @@
 import axios from 'axios';
-import { EditBio } from './componets/features/editBio';
-import { getInitColorSchemeScript, getTablePaginationUtilityClass } from '@mui/material';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/',
@@ -148,7 +146,7 @@ async function postThemeForSite(theme, token){
 async function getProejectTags(){
 
     const response = api.get(
-        '/all-technologies'
+        '/technologies'
         
     ).catch(
         (error) =>
@@ -197,7 +195,17 @@ async function postNewTag(tag, token){
     return response;
 }
 
-//get projects
+/**
+ * axios call to post a project to the database
+ * @param {object} project
+ * @param {string} project.name
+ * @param {string} project.description
+ * @param {string} project.image
+ * @param {string} project.link
+ * @param {array} project.tags
+ * @param {string} token
+ * @returns {boolean} true if successful, false if failed
+ */
 async function postProjectInfo(project, token){
     token = await token;
     project = await project;
@@ -206,12 +214,15 @@ async function postProjectInfo(project, token){
         '/projects',
         {
             'name': project.name,
-            'discription': project.discription,
-            'tags': JSON.stringify([...project.tags]),
+            'description': project.description,
+            'image': "",//placeholder
+            'link': "",//placeholder
+            'technologies': [...project.tags],
         },
         {
             headers: {
-                Authorization: 'Bearer ' + token
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
             }
         }
     ).catch((error) => {
@@ -225,6 +236,91 @@ async function postProjectInfo(project, token){
 }
 
 
+/**
+ * 
+ * @returns {string | boolean} update string, false if there is failed request
+ * 
+ */
+async function getUpdateValue(){
+    const response = await api.get(
+        '/update',
+    ).catch((error) => {
+        return false;
+    });
+    return response.data;
+}
+/**
+ * tell server to change update value, this will trigger cache update for all users
+ * @param {string} token
+ * @returns {boolean} true if successful, false if failed
+ */
+async function setUpdateValueAPI(token){
+    token = await token;
+    const response = await api.post(
+        '/update',
+        {},
 
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).catch((error) => {
+        return false;
+    }).then((response) => {
+        if(response.status < 400){
+            return true;
+        }
+        return false;
+    })
+    return response;
+}
 
-export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags }
+/**
+ * gets all projects from the database
+ * @returns {array | boolean} array of projects or false if failed
+ */
+async function getProjects(){
+    const response = await api.get(
+        '/projects'
+    ).catch((error) => {
+        return false;
+    }).then((data) => {
+        return data.data;
+    });
+    return response['projects'];
+}
+
+/**
+ * delete selected projects from the database
+ * @param {array} projects array of project ids to delete
+ * @param {string} token
+ * @returns {boolean} true if successful, false if failed
+ */
+async function deleteProjects(projects, token){
+    token = await token;
+    projects = await projects;
+    const response = await api.post(
+        '/projects/delete',
+        {
+            'projects': projects
+        },
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).catch((error) => {
+        return false;
+    }).then((response) => {
+        if(response.status < 400){
+            return true;
+        }
+        return false;
+    });
+    return response;
+}
+
+export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects }

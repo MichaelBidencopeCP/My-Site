@@ -1,21 +1,19 @@
-import { Box, FormControl, Input, InputLabel, TextareaAutosize } from '@mui/material';
+import { Box, FormControl, Input, InputLabel, TextareaAutosize, useTheme } from '@mui/material';
 import { PrimaryHeader } from '../components/pirmaryHeader';
 import { styled } from '@mui/system';
 import { AddTagsToProject } from '../components/projectTagSelector';
 import { useEffect, useState } from 'react';
 import { useRef } from 'react';
 import { BackupButton } from '../components/backupButtons';
-import { postProjectInfo } from '../../api'; 
+import { postProjectInfo, setUpdateValueAPI } from '../../api'; 
 import { useContext } from 'react';
 import { LoginContext } from '../../App';
+import { setUpdateValue } from '../../localStorage';
 
 function AddProject({reloadTags}) {
     const [selectedTags, setSelectedTags] = useState([]);
     const {login,} = useContext(LoginContext);
-    
-    
-    const discription = useRef();
-    const name = useRef();
+    const theme = useTheme();
 
     const StyledTextarea = styled(TextareaAutosize)(
         ({ theme }) => `
@@ -37,14 +35,31 @@ function AddProject({reloadTags}) {
         let flag = false;
         let project = {};
         (event.target.elements.name.value !== '') ? project.name = event.target.elements.name.value :flag = true;
-        (discription.value !== '') ? project.discription = discription.value :flag = true;
+        (event.target.elements.description.value !== '') ? project.description = event.target.elements.description.value :flag = true;
         if(flag){
             alert('Please fill out all fields');
             return;
         }
         project.tags = selectedTags.map((tag) => tag.id);
         //submit threw api
-        postProjectInfo(project, localStorage.getItem('token')).then((response) => { console.log(response) });
+        postProjectInfo(project, login.token).then((response) => {
+            if(response === false){
+                alert('Error adding project');
+                return;
+            }
+            event.target.elements.name.value = '';
+            event.target.elements.description.value = '';
+            let hold = reloadTags[0];
+            reloadTags[1](!hold);
+            setUpdateValueAPI(login.token).then((response) => {
+                if(response === false){
+                    alert('Error updating cache');
+                    return;
+                }
+            });
+
+        });
+        
     }
     return (
         <Box mx={{xs:0, sm:0}}>
@@ -63,15 +78,13 @@ function AddProject({reloadTags}) {
                         
                     
                     <FormControl fullWidth sx={{mb:2}}>
-                        <StyledTextarea 
+                        <textarea 
                             aria-label="minimum height" 
                             minRows={6} 
                             defaultValue="Project Description" 
-                            style={{width:'100%'}}
+                            style={{width:'100%', backgroundColor:theme.palette.secondary.main, border:'solid 1px '+theme.palette.primary.main, borderRadius:'5px', padding:'5px', fontFamily:'Roboto, sans-serif'}}
                             backgroundcolor="primary.main"
-                            htmlFor = "discription"
-                            ref={ discription}
-                    
+                            name = "description"
                         />
                     </FormControl>
                 </Box>

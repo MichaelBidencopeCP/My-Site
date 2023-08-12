@@ -35,11 +35,14 @@ class Project(BaseModel):
     id: int
     name: str
     description: str
-    technologies: dict
-    image: str
-    link: str
+    technologies: list
+    image: Union[str, None]
+    link: Union[str, None]
 
 class Technologie(BaseModel):
     id: Union[int, None]
     name: str
     image: str
+
+class ProjectOut(Project):
+    technologies: list

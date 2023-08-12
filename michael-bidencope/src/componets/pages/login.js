@@ -22,7 +22,8 @@ function LoginPage({}) {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         let token = getToken(data.get("username"), data.get("password"));
-        token.then((data) => {token = data;
+        token.then((data) => {
+            token = data;
             if (token != 0){
                 //TODO need to add admin data to response data
                 let tokenData = jwt_decode(token);
