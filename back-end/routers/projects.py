@@ -106,7 +106,6 @@ async def deleteProject(request: Request, db:sqlite3.Connection = Depends(getDB)
     #check that project exists
     data = await request.json()
     projects = data['projects']
-    print(projects)
     if len(projects) == 0:
         db.close()
         raise HTTPException(
@@ -116,6 +115,7 @@ async def deleteProject(request: Request, db:sqlite3.Connection = Depends(getDB)
     #delete project from database
     for x in projects:
         db.execute("DELETE FROM projects WHERE id = ?", (x,))
+        db.execute("DELETE FROM projectTechnologies WHERE project_id = ?", (x,))
     db.close()
     dbCommit()
     return {

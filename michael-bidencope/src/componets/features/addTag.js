@@ -1,9 +1,9 @@
 import { Dialog, DialogTitle, FormControl, InputLabel, Input, Alert } from '@mui/material';
 import { BackupButton } from '../components/backupButtons';
 
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-import { postNewTag } from '../../api';
+import { postNewTag, setUpdateValueAPI } from '../../api';
 import { LoginContext } from '../../App';
 
 function AddTagsToSite({modalShowing, setModalShowing, reloadTags}) {
@@ -28,28 +28,40 @@ function AddTagsToSite({modalShowing, setModalShowing, reloadTags}) {
             return;
         }
         
-        postNewTag(tag, token).then(async (res) =>{
-            if(await res == true){
+        postNewTag(tag, token).then( (res) =>{
+            if( res == true){
                 setAlert(2);
                 reloadTags[1]();
+                setUpdateValueAPI(login.token);
+                event.target.elements.name.value = '';
+                event.target.elements.image.value = '';
             }
-            if(await res == false){
+            if( res == false){
                 setAlert(1);
             }
         });
 
         
     }
+
+    useEffect(() => { 
+        //wait 5 seconds then hide the alert
+        if(alert > 0){
+            setTimeout(() => {
+                setAlert(0);
+            }, 3000);
+        }
+    }, [alert]);
+
     const open = modalShowing === 2? true:false
 
     return (
         <Dialog onClose={handleClose} open={open} maxWidth={'md'} fullWidth={true}>
-            
-            <DialogTitle>Add Technology Tag</DialogTitle>
             {alert === 2 && <Alert sx={{mb:0}} severity="success">Saved</Alert>}
             {alert === 1 && <Alert sx={{mb:0}} severity="error">Error Saving Tag</Alert>}
+            <DialogTitle>Add Technology Tag</DialogTitle>
                 <form onSubmit={handleSubmit} style={{padding:'2%', paddingTop:'0'}}>
-                    
+                        
                     <FormControl fullWidth sx={{mb:2}}>
                         <InputLabel fullWidth htmlFor="name">Name</InputLabel>
                         <Input id="name" aria-describedby="Name" placeholder={'Name'}/>    

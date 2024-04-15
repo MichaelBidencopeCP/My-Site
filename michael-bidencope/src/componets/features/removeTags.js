@@ -25,14 +25,15 @@ function RemoveTags({modalShowing, setModalShowing,reloadTags}) {
         setSelectedTags(tags);
     }
 
-    const handleSubmit = (event) => {
-        let flag = false;
+    const handleSubmit = () => {
         let remove = [...selectedTags.map((value)=>{return value.id})];
-        let res = removeProjectTags(remove, token).then(async (value)=>{
+        removeProjectTags(remove, token).then(async (value)=>{
             console.log(value);
             if(await value){
                 handleClose();
                 reloadTags[1]();
+                //maybe add reload cache here
+                //any project that has the tag will be updated, However the tag will stay in chache until cache is reloaded
             }
             else{
                 setAlert(1)

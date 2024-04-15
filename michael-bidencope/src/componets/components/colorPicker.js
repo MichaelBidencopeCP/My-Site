@@ -52,7 +52,7 @@ function ColorPicker({ouputTo}){
         let returns = { colors: outputDict, names: []}
         for(let x = 0; x < names.length; x++){
             let id = 'colorBoxDropdownContol' + x;
-            returns.names.push(<ColorPickerBox id={id} bgcolor={colorArray[x][500]} inline={'inline-block'} onClick={colorGroupSelect} />);
+            returns.names.push(<ColorPickerBox key={'colorpicker-'+id} id={id} bgcolor={colorArray[x][500]} inline={'inline-block'} onClick={colorGroupSelect} />);
         }
 
         return returns;

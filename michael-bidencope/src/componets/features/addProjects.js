@@ -14,6 +14,7 @@ function AddProject({reloadTags}) {
     const [selectedTags, setSelectedTags] = useState([]);
     const {login,} = useContext(LoginContext);
     const theme = useTheme();
+    const {update, setUpdate} = useContext(LoginContext);
 
     const StyledTextarea = styled(TextareaAutosize)(
         ({ theme }) => `
@@ -31,7 +32,6 @@ function AddProject({reloadTags}) {
     }
     const submitProject = (event) => {
         event.preventDefault();
-        console.log(event.target.elements.name.value);
         let flag = false;
         let project = {};
         (event.target.elements.name.value !== '') ? project.name = event.target.elements.name.value :flag = true;
@@ -57,7 +57,10 @@ function AddProject({reloadTags}) {
                     return;
                 }
             });
-
+            //set local update to true, so that the page will data will reload
+            let updateHold = {...update};
+            updateHold.activeUpdate = true;
+            setUpdate(updateHold);
         });
         
     }

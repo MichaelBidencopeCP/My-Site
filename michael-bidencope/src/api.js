@@ -59,6 +59,13 @@ async function postInfo(bio, token) {
     }
     return false;
 }
+
+/**
+ * Posts personal info to the database
+ * @param {data} data object with name, title, email, city, state
+ * @param {*} token jwt token
+ * @returns {boolean} true if successful, false if failed
+ */
 async function postPersonalInfo(data, token) {
     token = await token;
     data = await data;
@@ -77,13 +84,17 @@ async function postPersonalInfo(data, token) {
                 'Authorization': 'Bearer ' + token
             }
         }
-    );
+    ).then((response) => {
     if(response.status < 400){
         return true;
     }
     else{
-        return 0;
+        return false;
     }
+    }).catch((error) => {
+        return false;
+    });
+    return response;
 }
 
 async function getThemeForSite(token){
@@ -142,7 +153,9 @@ async function postThemeForSite(theme, token){
 
 }
 
-//gets tags for a project (ie. docker, fastApi and React ) if no project is given it will return all tags
+/**
+ * gets tags for a project (ie. docker, fastApi and React ) if no project is given it will return all tags
+*/
 async function getProejectTags(){
 
     const response = api.get(
@@ -187,8 +200,11 @@ async function postNewTag(tag, token){
                 Authorization: 'Bearer ' + token
             }
         }
-    ).then(() =>{
-         return response.data
+    ).then((response) =>{
+        if (response.status < 400 && response.data > 0){
+            return true
+        }
+        
     }).catch((error)=>{
         return false
     });
@@ -322,5 +338,91 @@ async function deleteProjects(projects, token){
     });
     return response;
 }
+/**
+ * api call to change password of admin user
+ * @param {string} password 
+ * @param {string} token 
+ * @returns {boolean} true if successful, false if failed
+ */
+async function ChangePasswordPost(password, token){
+    token = await token;
+    password = await password;
+    const response = await api.post(
+        '/change-password',
+        {
+            'password': password
+        },
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).catch((error) => {
+        return false;
+    }).then((response) => {
+        if(response.status < 400){
+            return true;
+        }
+        return false;
+    });
+    return response;
+}
 
-export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects }
+/**
+ * api to see if extras have been enabled. If they have the site will have extra features page enabled
+ * @param {string} token
+ * @returns {boolean} true if enabled, false if not
+ */
+async function getExtrasEnabled(token){
+    token = await token;
+    const response = await api.get(
+        '/extras',
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).catch((error) => {
+        return false;
+    }).then((response) => {
+        return response.data;
+    });
+    return response;
+}
+
+/**
+ * api to enable or disable extras
+ * @param {boolean} enabled true to enable, false to disable
+ * @param {string} token
+ * @returns {boolean} true if successful, false if failed
+ */
+ async function postExtras(enabled, token){
+    token = await token;
+    enabled = await enabled;
+    const response = await api.post(
+        '/extras',
+        {
+            'selected': true
+        },
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        },
+        
+    ).catch((error) => {
+        return false;
+    }
+    ).then((response) => {
+        if(response.status < 400){
+            return true;
+        }
+        return false;
+    });
+    return response;
+}
+
+export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects, ChangePasswordPost, getExtrasEnabled, postExtras }

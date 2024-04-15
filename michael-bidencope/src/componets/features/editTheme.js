@@ -9,9 +9,9 @@ import { red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, gre
 import { useState, useEffect, useContext } from 'react';
 import { BackupButton } from '../components/backupButtons';
 
-import { postThemeForSite } from '../../api'
+import { postThemeForSite, setUpdateValueAPI } from '../../api'
 
-import { LoginContext } from '../../App';
+import { LoginContext, UpdateContext } from '../../App';
 
 function EditThemeControler({currentTheme, handleThemeChange}) {
     const [selectedThemeColor, setSelectedThemeColor] = useState(-1);
@@ -20,6 +20,7 @@ function EditThemeControler({currentTheme, handleThemeChange}) {
     const [holdCurrentTheme, setHoldCurrentTheme] = useState(0);
 
     const {login, } = useContext(LoginContext)
+    const {update, setUpdate } = useContext(UpdateContext);
     const token = login.token;
     
     const handleColorInput = (id) =>
@@ -79,6 +80,10 @@ function EditThemeControler({currentTheme, handleThemeChange}) {
         postThemeForSite(currentTheme, token).then((res) => {
             if (res) {
                 setResFlag(1);
+                setUpdateValueAPI(login.token);
+                let hold = {...update};
+                hold.activeUpdate = true;
+                setUpdate(hold);
             }
             else {
                 setResFlag(2);
@@ -97,7 +102,7 @@ function EditThemeControler({currentTheme, handleThemeChange}) {
             {resFlag === 2 ? <Alert severity="success" sx={{mb:2, mt:1}} >Saved</Alert>: ''}
             
             <SetThemeSelector currentTheme={currentTheme} handleSelectedThemeColorChange={handleSelectedThemeColorChange} selectedThemeColor={selectedThemeColor}/>
-            <PrimarySmallHeader>Color Gropus</PrimarySmallHeader>
+            <PrimarySmallHeader>Color Groups</PrimarySmallHeader>
             <ColorPicker ouputTo={handleColorInput} />
 
         </Box>

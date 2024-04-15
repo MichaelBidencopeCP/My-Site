@@ -5,10 +5,11 @@ import NavMenuDropdown from '../components/dropDownMenu';
 import { titleCase } from '../../utils';
 import { useContext } from 'react';
 import { removeLoginState } from '../../localStorage';
-import { LoginContext } from '../../App';
+import { ExtrasContext, LoginContext } from '../../App';
 
 export default function Header({user, onPageChange}){
     let {login, setLogin }= useContext(LoginContext);
+    const {extras, setExtras} = useContext(ExtrasContext);
     let loginState = login.token !== 0;
     
     //maybe add selected button?
@@ -36,6 +37,7 @@ export default function Header({user, onPageChange}){
                             <a onClick={() => {onPageChange(0)}} href='#home'><NavButton >Home</NavButton></a>
                             <a onClick={() => {onPageChange(1)}} href='#info'><NavButton >Info</NavButton></a>
                             <a onClick={() => {onPageChange(2)}} href='#contact'><NavButton>Contact</NavButton></a>
+                            {extras ? <a onClick={() => {onPageChange(5)}} href='#projectHub'><NavButton>Extras</NavButton></a> : null}
                             {loginState ? <a onClick={() => {onPageChange(4)}} href='#admin'><NavButton>Admin</NavButton></a> : null}
                             {loginState ? <a onClick={() => {logout()}} href='#home'><NavButton>Logout</NavButton></a> : null}
                             {!loginState ? <a onClick={() => {onPageChange(3)}} href='#login'><NavButton>Login</NavButton></a> : null}

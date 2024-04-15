@@ -43,7 +43,7 @@ function DispalyProjects(){
         <Grid container spacing={2}>
             {
                 projects ? projects.map((project) => {
-                    return <Grid item xs={4} key={'grid'+project.id}><Project project={project} key={project.id} /></Grid>
+                    return <Grid item xs={4} key={'grid'+project.id}><Project project={project} key={'project' +project.id} /></Grid>
                 }) : <div>loading</div>
             }
         </Grid>

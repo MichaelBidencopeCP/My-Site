@@ -1,5 +1,5 @@
 
-import { Grid, Box } from '@mui/material';
+import { Grid, Box, Switch } from '@mui/material';
 
 import { EditBio } from '../features/editBio.js';
 import { AddProject } from '../features/addProjects.js';
@@ -14,6 +14,8 @@ import { RemoveTags } from '../features/removeTags.js';
 
 import { useState } from 'react';
 import { EditProject } from '../features/editProjects.js';
+import { ChangePassword } from '../features/changePassword.js';
+import { ExtrasSwitch } from '../components/extraPageSwitch.js';
 
 
 function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, handleThemeChange, token}){
@@ -38,16 +40,19 @@ function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, 
             <AddTagsToSite modalShowing={modalShowing} setModalShowing={setModal} reloadTags={[reloadTags,handleSetReload]} />
             <RemoveTags modalShowing={modalShowing} setModalShowing={setModal} reloadTags={[reloadTags,handleSetReload]}/>
             <EditProject modalShowing={modalShowing} setModalShowing={setModal} />
+            <ChangePassword modalShowing={modalShowing} setModalShowing={setModal} />
+            
             <BackupButton onButton={() => {setModal(1)}}>Edit Personal Info</BackupButton>
             <BackupButton onButton={() => {setModal(4)}}>Edit Projects</BackupButton>
             <br/>
             <BackupButton onButton={() => {setModal(2)}}>Add Tag</BackupButton>
             <BackupButton onButton={() => {setModal(3)}}>Remove Tag</BackupButton>
-            
+            <BackupButton onButton={() => {setModal(5)}}>Change Password</BackupButton>
             <BackupButton >Add Education</BackupButton>
+            <br/>
+            Custom Pages<ExtrasSwitch/>
             
             
-                
 
             <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>

@@ -8,16 +8,20 @@ import { deleteProjects, getProjects, setUpdateValueAPI } from '../../api';
 import { DeleteButtonIcon, SelectAllDeleteButton } from '../components/deleteBtn';
 import { EditButtonIcon } from '../components/editButton';
 
-import { LoginContext } from '../../App';
+import { LoginContext, UpdateContext } from '../../App';
 
 
 
 function EditProject({modalShowing, setModalShowing}) {
     const [projects, setProjects] = useState([]);
+    //selected {index: index, clicked: false, edit:false, id: project.id}
     const [selected, setSelected] = useState([]);
     const [allSelected, setAllSelected] = useState(false);
+    const {update, setUpdate} = useContext(UpdateContext);
 
     const {login,} = useContext(LoginContext);
+
+
     
     const handleSelected = (index) => {
         let newSelected = [...selected];
@@ -56,12 +60,11 @@ function EditProject({modalShowing, setModalShowing}) {
             });
         }
 
-    }, [])
+    }, []);
 
     useEffect(() => {
-        setSelected(projects.map((project, index) => { return {index: index, clicked: false, id: project.id}}));
-    }, [projects])
-    
+        setSelected(projects.map((project, index) => { return {index: index, clicked: false, edit: false, id: project.id}}));
+    }, [projects]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -78,16 +81,29 @@ function EditProject({modalShowing, setModalShowing}) {
         let selectedProjects = selected.filter((project) => project.clicked === true);
         selectedProjects = selectedProjects.map((project) => project.id);
         //make api call to delete selected projects
-        let result = deleteProjects(selectedProjects,login.token ).then((response) => {
+        deleteProjects(selectedProjects,login.token ).then((response) => {
             if(!response){
                 console.log('error deleting projects');
             }
             else{
                 setUpdateValueAPI(login.token);
+                //set updateActive to true
+                let hold = {...update};
+                hold.update = true;
+                setUpdate(hold);
             }
         });
 
     }
+    const handleEdit = (index) => {
+        let newSelected = [...selected];
+        newSelected[index].edit = !newSelected[index].edit;
+        setSelected(newSelected);
+    }
+    const handleEditSubmit = () => {
+        console.log('submitted');
+    }
+    //{selected[index].edit ? project.name : <><Input value={project.name} style={{marginRight:'20px'}}></Input><BackupButton onButton={()=>{handleEditSubmit()}} >Save</BackupButton></>}
     return (
         <Dialog  onClose={handleClose} open={open} maxWidth={'md'} fullWidth={true}>
             
@@ -109,7 +125,7 @@ function EditProject({modalShowing, setModalShowing}) {
                                     <SelectAllDeleteButton onClick={hadnleAllSelect} allSelected={allSelected}></SelectAllDeleteButton>
                                 </TableCell>
 
-                                <TableCell>
+                                <TableCell width={90}>
                                     ID
                                 </TableCell>
                                 <TableCell >
@@ -128,7 +144,7 @@ function EditProject({modalShowing, setModalShowing}) {
                                             >
                                                 <TableCell component="th" scope="row">
                                                     <DeleteButtonIcon selected={selected[index]} handleSelect={handleSelected}></DeleteButtonIcon>
-                                                    <EditButtonIcon></EditButtonIcon>
+                                                    <EditButtonIcon selected={selected[index]} handleEdit={handleEdit}></EditButtonIcon>
                                                 </TableCell>
                                                 
                                                 <TableCell component="th" scope="row">
@@ -143,6 +159,7 @@ function EditProject({modalShowing, setModalShowing}) {
                                     }) : <div>loading</div>
 
                                 }
+                                
                             </TableBody>
                         </Table>
                     </TableContainer>

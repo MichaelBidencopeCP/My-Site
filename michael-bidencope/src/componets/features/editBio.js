@@ -2,11 +2,16 @@ import { Alert, Box , TextareaAutosize } from '@mui/material';
 import { styled } from '@mui/system';
 import { PrimaryHeader } from '../components/pirmaryHeader';
 import { BackupButton } from '../components/backupButtons.js';
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
+import { setUpdateValueAPI } from '../../api';
+import { LoginContext, UpdateContext } from '../../App';
 
 
 function EditBio({info, handleInfoChange}) {
-    const [saved, setSaved] = useState(0)    
+    const [saved, setSaved] = useState(0);
+    const {login,} = useContext(LoginContext);
+    const {update, setUpdate} = useContext(UpdateContext);
+
     const StyledTextarea = styled(TextareaAutosize)(
         ({ theme }) => `
             width: 100%;
@@ -24,9 +29,16 @@ function EditBio({info, handleInfoChange}) {
         
         handleInfoChange( inputRef.current.value).then((res) => {
             if (res){
-                setSaved(1)
-            }else{
-                setSaved(2)
+                setSaved(1);
+                setUpdateValueAPI(login.token);
+                //set local update to true, so that the page will data will reload
+                let updateHold = {...update};
+                updateHold.activeUpdate = true;
+                setUpdate(updateHold);
+                
+            }
+            else{
+                setSaved(2);
             }
         });
     };
