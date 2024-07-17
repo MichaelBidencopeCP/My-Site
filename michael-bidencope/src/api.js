@@ -193,6 +193,7 @@ async function postNewTag(tag, token){
     const response = api.post(
         '/add-technology',
         {
+            id: null,
             ...tag
         },
         {

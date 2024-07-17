@@ -7,10 +7,9 @@ from typing_extensions import Annotated
 from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
-from routers import update, authorInfo, projects, theme, admin
-from projectTypes import Token
-
-from common import get_current_user, getDB, dbCommit, get_current_user_or_none, getAuth, get_user_with_hash
+from .routers import update, authorInfo, projects, theme, admin
+from .projectTypes import Token
+from .common import get_current_user, getDB, dbCommit, get_current_user_or_none, getAuth, get_user_with_hash
 
 app = FastAPI()
 

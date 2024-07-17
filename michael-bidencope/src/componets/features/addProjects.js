@@ -1,4 +1,4 @@
-import { Box, FormControl, Input, InputLabel, TextareaAutosize, useTheme } from '@mui/material';
+import { Alert, Box, FormControl, Input, InputLabel, TextareaAutosize, useTheme } from '@mui/material';
 import { PrimaryHeader } from '../components/pirmaryHeader';
 import { styled } from '@mui/system';
 import { AddTagsToProject } from '../components/projectTagSelector';
@@ -7,14 +7,29 @@ import { useRef } from 'react';
 import { BackupButton } from '../components/backupButtons';
 import { postProjectInfo, setUpdateValueAPI } from '../../api'; 
 import { useContext } from 'react';
-import { LoginContext } from '../../App';
+import { LoginContext, UpdateContext } from '../../App';
 import { setUpdateValue } from '../../localStorage';
 
 function AddProject({reloadTags}) {
     const [selectedTags, setSelectedTags] = useState([]);
     const {login,} = useContext(LoginContext);
     const theme = useTheme();
-    const {update, setUpdate} = useContext(LoginContext);
+    const {update, setUpdate} = useContext(UpdateContext);
+    const [saved, setSaved] = useState(0);
+
+    useEffect(() => {
+        if(saved===1){
+            setTimeout(() => {
+                setSaved(0);
+            }, 5000);
+        }
+        if(saved===2){
+            setTimeout(() => {
+                setSaved(0);
+            }, 5000);
+        }
+    }, [saved]);
+
 
     const StyledTextarea = styled(TextareaAutosize)(
         ({ theme }) => `
@@ -44,9 +59,10 @@ function AddProject({reloadTags}) {
         //submit threw api
         postProjectInfo(project, login.token).then((response) => {
             if(response === false){
-                alert('Error adding project');
+                setSaved(2);
                 return;
             }
+            setSaved(1);
             event.target.elements.name.value = '';
             event.target.elements.description.value = '';
             let hold = reloadTags[0];
@@ -62,11 +78,14 @@ function AddProject({reloadTags}) {
             updateHold.activeUpdate = true;
             setUpdate(updateHold);
         });
+
         
     }
     return (
         <Box mx={{xs:0, sm:0}}>
             <PrimaryHeader>Add Project</PrimaryHeader>
+            {saved === 1 && <Alert sx={{mb:1}} severity="success">Project Saved</Alert>}
+            {saved === 2 && <Alert sx={{mb:2}} severity="error">Error Saving Project</Alert>}
             <form onSubmit={(event) => submitProject(event)}>
                 <Box sx={{width:{xs:'100%'}}}>
                     <FormControl fullWidth sx={{mb:2}}>

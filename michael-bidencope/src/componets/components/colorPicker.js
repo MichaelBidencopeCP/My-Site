@@ -1,4 +1,4 @@
-import { Grid, Box, Typography } from '@mui/material';
+import { Grid, Box, Typography, IconButton } from '@mui/material';
 import { red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, lime, yellow, amber, orange, deepOrange, brown, grey, blueGrey } from '@mui/material/colors';
 
 import { ColorPickerBox  } from './colorPickerBox.js';
@@ -6,6 +6,18 @@ import { ColorPickerBox  } from './colorPickerBox.js';
 import { useState, useEffect } from 'react';
 
 import { PrimarySmallHeader } from './pirmaryHeader.js';
+
+import AddIcon from '@mui/icons-material/Add';
+
+function AddButton({onClick}) {
+    return (
+        <IconButton onClick={onClick}>
+            <AddIcon />
+        </IconButton>
+    )
+}
+
+
 
 function ColorPicker({ouputTo}){
     //-1 means no color is selected, 0 means red is selected, 1 means pink is selected, etc.
@@ -116,6 +128,8 @@ function ColorPicker({ouputTo}){
                     })
                 }
             </Box>
+            <Input type="text" id="customColorInput" placeholder="Custom Color" InputProps={{endAdornment: <AddButton />}}/>
+
         </Box>
         
     )

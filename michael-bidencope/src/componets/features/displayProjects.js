@@ -17,14 +17,14 @@ function DispalyProjects(){
         }
         else{
             
-            if(update.update == true && update.updatedProjects == false){
+            if(update.update == true && update.updatedProjects == true){
 
                 getProjects().then((response) => {
                     setProjects(Object.values(response));
                     setProjectsInLocal(Object.values(response));
                 })
                 let updateHold = {...update};
-                updateHold.updatedProjects = true;
+                updateHold.updatedProjects = false;
                 setUpdate(updateHold);
             }
             else if(!localResponse){

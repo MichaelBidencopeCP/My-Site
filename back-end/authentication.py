@@ -9,7 +9,7 @@ from jose import jwt
 
 from fastapi.security import OAuth2PasswordBearer
 
-from projectTypes import UserWithHash
+from .projectTypes import UserWithHash
 
 
 

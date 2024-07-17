@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 import sqlite3
-from database import Database
-from projectTypes import User
-from authentication import Authentication
-from common import get_current_user, getDB, dbCommit, getAuth
+from ..database import Database
+from ..projectTypes import User
+from ..authentication import Authentication
+from ..common import get_current_user, getDB, dbCommit, getAuth
 
 router = APIRouter()
 

@@ -97,13 +97,13 @@ function App() {
         }
         if(update.update || updateFlag){ 
             getUser().then((data) => {
-                if(update.updatedUserInfo == false){
+                if(update.updatedUserInfo == true){
                     setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state});
                     setInfo({bio:data.bio})
                     //save user info to cache
                     saveUserInfo({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state, bio:data.bio})
                     let hold = {...update}
-                    hold.updatedUserInfo = true;
+                    hold.updatedUserInfo = false;
                     setUpdate(hold);
                 }
             });

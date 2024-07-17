@@ -1,6 +1,6 @@
 import sqlite3
-from projectTypes import User, Theme, Technologie
-from common import get_current_user, getDB, dbCommit, get_current_user_or_none
+from ..projectTypes import User, Theme, Technologie
+from ..common import get_current_user, getDB, dbCommit, get_current_user_or_none
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from typing import Union
 
