@@ -37,8 +37,19 @@ function EditThemeControler({currentTheme, handleThemeChange}) {
     }
     useEffect(() => { 
         let colorArray = [red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, yellow, amber, orange, deepOrange, brown, grey, blueGrey];
-        let holdColorInput = colorInput.split('-'); 
-        holdColorInput[0] = holdColorInput[0].replace('color', '');
+        if (colorInput == '') {
+            return;
+        }
+        //not best way of doing it 
+        let holdColorInput;
+        if (colorInput.startsWith('custom')){
+            colorArray[20]= [colorInput.replace('custom', '')];
+            holdColorInput = [20, 0];
+        }
+        else{
+            holdColorInput = colorInput.split('-'); 
+            holdColorInput[0] = holdColorInput[0].replace('color', '');
+        }
         let holdState =  {...currentTheme}
         if(selectedThemeColor != -1){           
             switch(parseInt(selectedThemeColor)){

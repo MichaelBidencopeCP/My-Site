@@ -1,4 +1,4 @@
-import { Grid, Box, Typography, IconButton } from '@mui/material';
+import { Grid, Box, Typography, IconButton, TextField } from '@mui/material';
 import { red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, lime, yellow, amber, orange, deepOrange, brown, grey, blueGrey } from '@mui/material/colors';
 
 import { ColorPickerBox  } from './colorPickerBox.js';
@@ -22,7 +22,23 @@ function AddButton({onClick}) {
 function ColorPicker({ouputTo}){
     //-1 means no color is selected, 0 means red is selected, 1 means pink is selected, etc.
     const [selectedColorGroup, setSelectedColorGroup] = useState(-1);
+    const [customColor, setCustomColor] = useState('');
+    const [alert, setAlert] = useState(0);
     
+    const submitCustomColor = () => {
+        //TODO check if customColor is a valid color in hex format
+        let color = customColor;
+        if (!customColor.startsWith('#')){
+            color = '#' + customColor;
+        }
+        if (customColor.length != 7){
+            
+            return;
+        }
+        color = 'custom' + customColor;
+        ouputTo(color);
+        setSelectedColorGroup(-1);
+    }
 
     const colorSelect = (e) => {
         ouputTo(e.target.id);
@@ -128,7 +144,16 @@ function ColorPicker({ouputTo}){
                     })
                 }
             </Box>
-            <Input type="text" id="customColorInput" placeholder="Custom Color" InputProps={{endAdornment: <AddButton />}}/>
+            <PrimarySmallHeader>Custom Color</PrimarySmallHeader>
+            {alert == 1 ? <Typography sx={{color:'red'}}>Color must be a hex value</Typography>:''}
+            <TextField 
+                sx={{ width:'100%'}}
+                type="text" 
+                id="customColorInput" 
+                onChange={(e)=>{setCustomColor(e.target.value)}} 
+                placeholder="#CustomColor" 
+                InputProps={{endAdornment: <AddButton onClick={()=>{submitCustomColor()}}/>}}
+            />
 
         </Box>
         
