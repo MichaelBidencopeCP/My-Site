@@ -109,8 +109,8 @@ function EditThemeControler({currentTheme, handleThemeChange}) {
             <BackupButton onButton={() =>{resetTheme()}} >Reset</BackupButton>
             
             <PrimarySmallHeader>Current Theme</PrimarySmallHeader>
-            {resFlag === 1 ? <Alert severity="error" sx={{mb:2, mt:1}} >Failed to save</Alert>: ''}
-            {resFlag === 2 ? <Alert severity="success" sx={{mb:2, mt:1}} >Saved</Alert>: ''}
+            {resFlag === 2 ? <Alert severity="error" sx={{mb:2, mt:1}} >Failed to save</Alert>: ''}
+            {resFlag === 1 ? <Alert severity="success" sx={{mb:2, mt:1}} >Saved</Alert>: ''}
             
             <SetThemeSelector currentTheme={currentTheme} handleSelectedThemeColorChange={handleSelectedThemeColorChange} selectedThemeColor={selectedThemeColor}/>
             <PrimarySmallHeader>Color Groups</PrimarySmallHeader>

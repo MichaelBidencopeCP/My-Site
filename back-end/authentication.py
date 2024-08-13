@@ -2,7 +2,7 @@ import dotenv
 import os
 
 from typing_extensions import Annotated
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from passlib.context import CryptContext
 from jose import jwt
@@ -26,7 +26,7 @@ class Authentication():
         dotenv.load_dotenv()
         self.SECRET_KEY = os.getenv("SECRET_KEY")
         self.ALGORITHM = os.getenv("ALGORITHM")
-        self.ACCESS_TOKEN_EXPIRE = os.getenv("ACCESS_TOKEN_EXPIRE")
+        self.ACCESS_TOKEN_EXPIRE = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
@@ -42,16 +42,17 @@ class Authentication():
             return False
         return user
         
-    def create_access_token(self, data: dict, expires_delta: timedelta):
+    def create_access_token(self, data: dict):
         to_encode = data.copy()
-        if expires_delta:
-            expire = datetime.utcnow() + expires_delta
-        else:
-            expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=self.ACCESS_TOKEN_EXPIRE)
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return encoded_jwt
 
+    def create_new_user(self, username: str, password: str):
+        return UserWithHash(id=0,username=username, passwordHash=self.get_password_hash(password), email="email", name="name", city="city", state="state", title="title", admin=0)
+    def change_password(self, user: UserWithHash, password: str):
+        return UserWithHash(username=user.username, passwordHash=self.get_password_hash(password))
 
 
 

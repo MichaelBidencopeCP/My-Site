@@ -33,6 +33,9 @@ function DispalyProjects(){
                     setProjectsInLocal(Object.values(response));
                 })
             }
+            else{
+                setProjects(Object.values(localResponse));
+            }
         }
         
     }, [update.update])

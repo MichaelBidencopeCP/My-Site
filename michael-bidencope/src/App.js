@@ -9,17 +9,19 @@ import { ContactPage } from './componets/pages/contact.js';
 import { LoginPage } from './componets/pages/login.js';
 import { AdminPage } from './componets/pages/admin.js';
 import { InfoPage } from './componets/pages/info';
+import { SignUp } from './componets/pages/signUp';
 import { useState, useEffect, createContext, useMemo, useRef } from 'react';
 
-import { getUser, postInfo, postPersonalInfo, getThemeForSite, getUpdateValue, setUpdateValueAPI, getExtrasEnabled } from './api.js';
+import { getUser, postInfo, postPersonalInfo, getThemeForSite, getUpdateValue, setUpdateValueAPI, getExtrasEnabled, parseJwt } from './api.js';
 
-import {  checkForUpdate, getLoginState, getThemeFromLocal, getUserInfoLocal, saveTheme, saveUserInfo, setUpdateValue } from './localStorage.js';
+import {  checkForUpdate, getLoginState, getThemeFromLocal, getUserInfoLocal, removeLoginState, saveTheme, saveUserInfo, setUpdateValue } from './localStorage.js';
 import { ExtrasPage } from './componets/extras/extras';
-
+import { UserPage } from './componets/pages/user.js';
+import { PageSpinner } from './componets/structures/pageSpinner.js';
+import {api} from './api.js';
 export const LoginContext = createContext(null);
 export const UpdateContext = createContext(null);
 export const ExtrasContext = createContext(null);
-
 
 function App() {
     //update is used to denote a change in the database that requires a cache update, if update if false then no update is needed
@@ -48,22 +50,58 @@ function App() {
     });
     const [projects, setProjects] = useState([{}]);
     const [extras, setExtras] = useState(false);
+    const [loaded, setLoaded] = useState(false);
+    const [tokenExp, setTokenExp] = useState(false);
     const initialRender = useRef(true);
+
+    //Logic for intercepting 401's and logging out the user
+    useMemo(() => {
+        // Handle 401 errors
+        api.interceptors.response.use(
+            (response) => {
+                return response;
+            },
+            async function (error) {
+                const originalRequest = error.config;
+                if (error.response.status === 401 && originalRequest.headers.Authorization) {
+                    console.log('401 error intercepted and silenced');
+                    // Optionally, you can perform some action here, like refreshing the token
+                    //logout user.
+                    removeLoginState();
+                    setLogin({token: 0, admin: false});
+                    setTokenExp(true);
+                    return Promise.resolve(); // Silences the error
+
+                }
+                return Promise.reject(error); // Propagate other errors
+            }
+        );
+    }, [setTokenExp, setLogin]);
     useEffect(
         () => {
             if (login.token == 0){
                 return;
             }
+            //if(login.admin != true){ 
+            //    return;
+            //}
             getExtrasEnabled(login.token).then((response) => {
                 response = response.response;
                 setExtras(response);
+            }).catch((error) => {
+                console.log(error);
+                console.log('expected error from 401 when not admin');
             });
 
         }, [login.token]
     );
-    useEffect(() => {
-        
-        //check update value to see if cache needs to be updated
+
+    //set login from cache if token expired state will be set to logged out values
+    useEffect(() => { setLogin(getLoginState()); }, []);
+    
+    useMemo(() => {
+        //set user info from api or cache
+        //invalidate cache if with update value
         getUpdateValue().then((data) => {
             if(initialRender.current){
                 let updateCheck = checkForUpdate(data);
@@ -74,92 +112,90 @@ function App() {
                     
                 }
             }
-        }).then(() => { initialRender.current = false;} );
-        
-    }, []);
-    //set login from cache if token expired state will be set to logged out values
-    useEffect(() => { setLogin(getLoginState()); }, []);
-    //set user info from api or cache
-    useMemo(() => {
-        if(initialRender.current){
-            return;
-        }
-        let updateFlag = false;
-        if(update.update === false){
-            let data = getUserInfoLocal()
-            if(data){
-                setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state});
-                setInfo({bio:data.bio});
-            }
-            else{
-                updateFlag = true;
-            }
-        }
-        if(update.update || updateFlag){ 
-            getUser().then((data) => {
-                if(update.updatedUserInfo == true){
-                    setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state});
-                    setInfo({bio:data.bio})
-                    //save user info to cache
-                    saveUserInfo({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state, bio:data.bio})
-                    let hold = {...update}
-                    hold.updatedUserInfo = false;
-                    setUpdate(hold);
-                }
-            });
-        }
-        
-    }, [initialRender.current, update.update]);
-    
-    //set theme from api or cache
-    useMemo(() => {
-        if(initialRender.current){
-            return;
-        }
-        let flagToUpdateTheme = false;
-        if(update.update === false){
+            console.log('update value:', data);
+        }).then(() => {
+            initialRender.current = false;
+
+            //Theme start up logic
+            //if user is logged in
             if(login.token != 0){
-                let localTheme = getThemeFromLocal(login.id);
-                if(localTheme){
-                    setCurrentTheme(localTheme);
-                }
-                else{
-                    localTheme = getThemeFromLocal();
+
+                //default to using api to get theme
+                getThemeForSite(login.token).then((data) => {
+                    setCurrentTheme(data);
+                });
+            }
+            //no user is logged in, default to using api or cache to get theme
+            else{
+            
+                //flag to update if cache is empty
+                let flagToUpdateTheme = false;
+                if(update.update === false){
+            
+                    let localTheme = getThemeFromLocal(login.id);
                     if(localTheme){
                         setCurrentTheme(localTheme);
                     }
                     else{
-                        flagToUpdateTheme = true;
+                        localTheme = getThemeFromLocal();
+                        if(localTheme){
+                            setCurrentTheme(localTheme);
+                        }
+                        else{
+                            flagToUpdateTheme = true;
+                        }
+                    }
+                }
+                if(update.update || flagToUpdateTheme){
+                    if(update.updatedProjects == false){
+                        getThemeForSite(login.token).then((data) => {
+                            setCurrentTheme(data);
+                            saveTheme(data, login.id);
+                            let hold = {...update};
+                            hold.updatedTheme = true;
+                            setUpdate(hold);
+                        });
                     }
                 }
             }
-        
-            else{
-                let localTheme = getThemeFromLocal();
-                if(localTheme){
-                    setCurrentTheme(localTheme);
+            //User info start up logic
+            //flag to update if cache is empty for user info
+            let updateFlag = false;
+            if(update.update === false){
+                //try to get cache data
+                let data = getUserInfoLocal()
+                if(data){
+                    setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state});
+                    setInfo({bio:data.bio});
                 }
                 else{
-                    flagToUpdateTheme = true;
+                    //if cache is empty set flag to update
+                    updateFlag = true;
                 }
             }
-        }
-        if(update.update || flagToUpdateTheme){
-            if(update.updatedProjects == false){
-                getThemeForSite(login.token).then((data) => {
-                    setCurrentTheme(data);
-                    if(login.id != 0){
-                        saveTheme(data, login.id);
+            //if admin has updated the database or the cache is empty update the cache
+            if(update.update || updateFlag){ 
+                getUser().then((data) => {
+                    
+                    setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state});
+                    setInfo({bio:data.bio})
+                    //save user info to cache
+                    saveUserInfo({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state, bio:data.bio})
+                        
+                    if(update.updatedUserInfo == true){
+                        let hold = {...update}
+                        hold.updatedUserInfo = false;
+                        setUpdate(hold);
                     }
-                    else{
-                        saveTheme(data);
-                    }
-                    let hold = {...update};
-                    hold.updatedTheme = true;
-                    setUpdate(hold);
                 });
             }
-        }
+        }).then(() => {
+            setTimeout(() => {
+            setLoaded(true);
+            }, 750);
+        });
+
+        
     }, [initialRender.current, update.update]);
     
     useEffect(() => { 
@@ -173,7 +209,12 @@ function App() {
     }, [currentTheme]);
 
     useEffect(() => {
-        setPageState(0)
+        //check the theme
+        getThemeForSite(login.token).then((data) => {
+            setCurrentTheme(data);
+        });
+        
+        setPageState(0);
     }, [login]);
 
     useEffect(() => {
@@ -208,9 +249,7 @@ function App() {
         setUser(user);
         if(postPersonalInfo(user, login.token)){
             setUpdateValueAPI(login.token);
-            let hold = {...update};
-            hold.update = true;
-            setUpdate(hold);
+                 
         }
     };
 
@@ -251,13 +290,17 @@ function App() {
                 <UpdateContext.Provider value={{update, setUpdate}}>
                     <ExtrasContext.Provider value={{extras, setExtras}}>
                     <CssBaseline />
+                    { !loaded ? <PageSpinner />: null}
                     <Header user={user} onPageChange={handlePageChange}/>
-                        { pageState === 0 ? <HomePage />: null}
+                        { tokenExp === 1 ? <h1>Token Expired</h1> : null}
+                        { pageState === 0 ? <HomePage tokenExp={tokenExp}/>: null}
                         { pageState === 1 ? <InfoPage info={info} /> : null}
                         { pageState === 2 ? <ContactPage /> : null}
-                        { pageState === 3 && login.token == 0 ? <LoginPage /> : null}
+                        { pageState === 3 && login.token == 0 ? <LoginPage onPageChange={handlePageChange}/> : null}
                         { pageState === 4 && login.token != 0 ? <AdminPage info={info} handleInfoChange={handleInfoChange} user={user} setUserHandler={handleUserChange} currentTheme={currentTheme} handleThemeChange={handleThemeChange} /> : null}
                         { pageState === 5 && login.token != 0 && extras ? <ExtrasPage /> : null}
+                        { pageState === 6 ? <SignUp /> : null}
+                        { pageState === 7 && login.token != 0 ? <UserPage currentTheme={currentTheme} handleThemeChange={handleThemeChange} /> : null}
                     </ExtrasContext.Provider>    
                 </UpdateContext.Provider>
             </LoginContext.Provider>

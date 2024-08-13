@@ -3,39 +3,41 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Alert, ButtonBase, Link } from "@mui/material";
+import { Alert } from "@mui/material";
 
-import {getToken} from '../../api.js';
-import {saveLoginState} from '../../localStorage.js';
 import {LoginContext} from '../../App.js';
 
-import jwt_decode from "jwt-decode";
-
 import {useState, useContext} from 'react';
+import { createUser } from "../../api.js";
+import { BackupButton } from "../components/backupButtons.js";
 
+function SignUp({}) {
 
-function LoginPage({onPageChange}) {
     //before login is clicked, result is 0, after login is clicked, result remains 0 unless unsuccessful
     const [result, setResult] = useState(0);
     const { login ,setLogin} = useContext(LoginContext);
     const handleSubmit = (event, setResult) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        let token = getToken(data.get("username"), data.get("password"));
-        token.then((data) => {
-            token = data;
-            if (token != 0){
-                //TODO need to add admin data to response data
-                let tokenData = jwt_decode(token);
-                let admin = tokenData.admin==1?true:false;
-                setLogin({token: token, admin: admin, username: tokenData.sub, id: tokenData.id, exp: tokenData.exp});
-                saveLoginState(token);
+        const username = data.get('username');
+        const password = data.get('password');
+        const confirmPassword = data.get('confirmPassword');
+        if(password != confirmPassword){
+            setResult(1);
+            return;
+        }
+        createUser(username, password).then((response) => {
+            if(response == 200){
+                setResult(4);
+            }
+            else if(response == 409){
+                setResult(2);
             }
             else{
-                //display error message
-                setResult(1);
+                setResult(3);
             }
         });
+
     };
 
     return (
@@ -55,12 +57,18 @@ function LoginPage({onPageChange}) {
                     }}
                 >
                     <Typography component="h1" variant="h5" sx={{pb:2}}>
-                        Sign in
+                        Sign Up
+                    </Typography>
+                    <Typography component="p1" variant="p1" sx={{pb:2}}>
+                        You can create an account here, it is a simple login system for the project. Little functionality is available, but you can create an account and login.
                     </Typography>
                     
-                    {result == 1 && <Alert severity="error">Invalid username or password </Alert>}
-
+                    { result == 1 && <Alert severity="error"> Passwords do not match </Alert> }
+                    { result == 2 && <Alert severity="error"> Username already exists </Alert> }
+                    { result == 3 && <Alert severity="error"> Error creating account </Alert> }
+                    { result == 4 && <Alert severity="success" sx={{marginBottom:2}}> Account created, go to login page to login </Alert> }
                     <Box component="form" onSubmit={(event) =>{ handleSubmit(event,setResult)}} noValidate sx={{ mt: 1 }}>
+                        
                         <TextField
                             margin="normal"
                             required
@@ -81,23 +89,31 @@ function LoginPage({onPageChange}) {
                             id="password"
                             autoComplete="current-password"
                         />
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="confirmPassword"
+                            label="Confirm Password"
+                            type="password"
+                            id="confirmPassword"
+                            autoComplete="current-password"
+                        />
                         
-                        <Button
+                        <BackupButton
                             type="submit"
                             fullWidth
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Sign In
-                        </Button>
+                            Sign Up
+                        </BackupButton>
 
                     </Box>
-                    <ButtonBase onClick={() => onPageChange(6)}>
-                        <Typography> Don't have an account? Sign Up </Typography>
-                    </ButtonBase>
                 </Box>
             </Container>
         </Box>
     );
 }
-export { LoginPage }
+
+export {SignUp};

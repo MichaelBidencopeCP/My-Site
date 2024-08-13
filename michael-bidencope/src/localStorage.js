@@ -1,4 +1,3 @@
-import { jsx } from "@emotion/react";
 import jwt_decode from "jwt-decode";
 
 
@@ -53,10 +52,17 @@ function getLoginState(){
 }
 
 /**
- * removes login state from local storage
+ * logs the user out of the site by removing the user login from local storage
+ * @returns {boolean} true if successful, false if not
  */
 function removeLoginState(){
-    localStorage.removeItem("user");
+    try{
+        localStorage.removeItem("login");
+        return true;
+    }
+    catch{
+        return false;
+    }
 }
 
 /**
@@ -167,5 +173,7 @@ function setProjectsInLocal(projects){
 
     return true;
 }
+
+
 
 export {saveLoginState, getLoginState, removeLoginState, checkForUpdate, getUserInfoLocal, saveUserInfo, getThemeFromLocal, saveTheme, getProjectsFromLocal, setProjectsInLocal};

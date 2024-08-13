@@ -1,4 +1,4 @@
-import { Grid, Box, Typography, IconButton, TextField } from '@mui/material';
+import { Grid, Box, Typography, IconButton, TextField, Alert } from '@mui/material';
 import { red, pink, purple, deepPurple, indigo, blue, lightBlue, cyan, teal, green, lightGreen, lime, yellow, amber, orange, deepOrange, brown, grey, blueGrey } from '@mui/material/colors';
 
 import { ColorPickerBox  } from './colorPickerBox.js';
@@ -30,12 +30,14 @@ function ColorPicker({ouputTo}){
         let color = customColor;
         if (!customColor.startsWith('#')){
             color = '#' + customColor;
+
         }
-        if (customColor.length != 7){
-            
+        if (color.length != 7){
+            setAlert(1)
+            const timer = setTimeout(() => { setAlert(0); }, 5000);
             return;
         }
-        color = 'custom' + customColor;
+        color = 'custom' + color;
         ouputTo(color);
         setSelectedColorGroup(-1);
     }
@@ -134,7 +136,7 @@ function ColorPicker({ouputTo}){
                 }
             </Box>
             
-            {selectedColorGroup!=-1? <PrimarySmallHeader>Color </PrimarySmallHeader>:''}
+            {selectedColorGroup!=-1? <PrimarySmallHeader>Color</PrimarySmallHeader>:''}
             <Box sx={{display:'inline-flex' }}>
                 {/*{placeHolderTiles()}*/}
                 
@@ -145,7 +147,7 @@ function ColorPicker({ouputTo}){
                 }
             </Box>
             <PrimarySmallHeader>Custom Color</PrimarySmallHeader>
-            {alert == 1 ? <Typography sx={{color:'red'}}>Color must be a hex value</Typography>:''}
+            {alert == 1 ? <Alert sx={{my:2}} severity="error">Color must be a hex value</Alert>:''}
             <TextField 
                 sx={{ width:'100%'}}
                 type="text" 

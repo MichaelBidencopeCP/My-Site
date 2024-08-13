@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 import sqlite3
 from ..projectTypes import User
-from ..common import get_current_user, getDB, dbCommit
+from ..common import getCurrentUser, getDB, dbCommit
 from typing import Union
 
 
@@ -48,7 +48,7 @@ def get_author_info(db: sqlite3.Connection = Depends(getDB)) -> Union[dict, str]
         )
 
 @router.post("/author-info")
-async def edit_page_author_info(request: Request,  db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(get_current_user))  -> Union[dict, bool]:
+async def edit_page_author_info(request: Request,  db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(getCurrentUser))  -> Union[dict, bool]:
     bio =  await request.json()
     bio = bio['bio']
     db = db.cursor()

@@ -38,7 +38,8 @@ export default function Header({user, onPageChange}){
                             <a onClick={() => {onPageChange(1)}} href='#info'><NavButton >Info</NavButton></a>
                             <a onClick={() => {onPageChange(2)}} href='#contact'><NavButton>Contact</NavButton></a>
                             {extras ? <a onClick={() => {onPageChange(5)}} href='#projectHub'><NavButton>Extras</NavButton></a> : null}
-                            {loginState ? <a onClick={() => {onPageChange(4)}} href='#admin'><NavButton>Admin</NavButton></a> : null}
+                            {loginState & login.admin ? <a onClick={() => {onPageChange(4)}} href='#admin'><NavButton>Admin</NavButton></a> : null}
+                            {loginState & !login.admin ? <a onClick={() => {onPageChange(7)}} href='#projectHub'><NavButton>{login.username}</NavButton></a> : null}
                             {loginState ? <a onClick={() => {logout()}} href='#home'><NavButton>Logout</NavButton></a> : null}
                             {!loginState ? <a onClick={() => {onPageChange(3)}} href='#login'><NavButton>Login</NavButton></a> : null}
                         </Grid>

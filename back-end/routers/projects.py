@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 import sqlite3
 from ..projectTypes import User, Project, Technologie,ProjectOut
-from ..common import get_current_user, getDB, dbCommit
+from ..common import getCurrentUser, getDB, dbCommit
 from typing import Union
 
 router = APIRouter()
 
 #post request to add project can only be accessed by admin user
 @router.post("/projects")
-async def create_proejct(request: Request, db:sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) :
+async def create_proejct(request: Request, db:sqlite3.Connection = Depends(getDB), user: User = Depends(getCurrentUser)) :
     """
         Post a new project to the database
     """
@@ -94,7 +94,7 @@ async def getProjectTechnologies(db : sqlite3.Connection = Depends(getDB), techn
 
 #delete project from database
 @router.post("/projects/delete")
-async def deleteProject(request: Request, db:sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) :
+async def deleteProject(request: Request, db:sqlite3.Connection = Depends(getDB), user: User = Depends(getCurrentUser)) :
     db = db.cursor()
     #check that user is admin
     if user.admin != 1:

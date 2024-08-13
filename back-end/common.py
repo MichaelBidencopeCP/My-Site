@@ -22,14 +22,14 @@ def getAuth():
     return auth
 
 
-def get_user(username:str):
+def getUser(username:str):
     db = getDB().cursor()
     db.execute("SELECT * FROM users WHERE username = ?", (username,))
     user = db.fetchone()
     user = User(username=user[1], name=user[3], title=user[4], email=user[5], city=user[6], state=user[7], admin=user[8] ,id = user[0])
     return user
 
-def get_user_with_hash(username:str):
+def getUserWithHash(username:str):
 
     db = getDB().cursor()
     db.execute("SELECT * FROM users WHERE username = ?", (username,))
@@ -40,7 +40,7 @@ def get_user_with_hash(username:str):
         user = None
     return user
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def getCurrentUser(token: Annotated[str, Depends(oauth2_scheme)]):
     
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -56,14 +56,14 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(username=token_data.username)
+    user = getUser(username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
 
 
 
-def get_current_user_or_none(token: Annotated[str, Depends(oauth2_scheme)]):
+def getCurrentUserOrNone(token: Annotated[str, Depends(oauth2_scheme)]):
     if token is None:
         return None
     auth = getAuth()
@@ -75,7 +75,7 @@ def get_current_user_or_none(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except JWTError:
         return None
-    user = get_user(username=token_data.username)
+    user = getUser(username=token_data.username)
     if user is None:
         return None
     return user

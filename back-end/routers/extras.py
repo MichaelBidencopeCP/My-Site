@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException, status
-from ..common import get_current_user, getDB, dbCommit
+from ..common import getCurrentUser, getDB, dbCommit
 import socket
 from dotenv import load_dotenv
 import os
@@ -37,7 +37,7 @@ def make_request():
         return True
 
 @router.get("/lock")
-def lock(user: Depends(get_current_user)):
+def lock(user: Depends(getCurrentUser)):
     if user.admin == 1:
         if make_request():
             return {

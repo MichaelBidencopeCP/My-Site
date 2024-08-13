@@ -3,14 +3,14 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 import sqlite3
 from ..projectTypes import User, Technologie
 from typing import Union
-from ..common import get_current_user, getDB, dbCommit, getAuth
+from ..common import getCurrentUser, getDB, dbCommit, getAuth
 
 
 router = APIRouter()
 
 #remove technology from site
 @router.post("/remove-technology")
-async def deleteProjectTechnology(tags:dict, db:sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) -> bool:
+async def deleteProjectTechnology(tags:dict, db:sqlite3.Connection = Depends(getDB), user: User = Depends(getCurrentUser)) -> bool:
     if user.admin != 1:
         db.close()
         raise HTTPException(
@@ -36,7 +36,7 @@ async def deleteProjectTechnology(tags:dict, db:sqlite3.Connection = Depends(get
 
 #used to add tags to the site, from there they can be assigned to projects
 @router.post("/add-technology")
-async def postProjectTechnology(technology: Technologie, db:sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user)) -> int:
+async def postProjectTechnology(technology: Technologie, db:sqlite3.Connection = Depends(getDB), user: User = Depends(getCurrentUser)) -> int:
     if user.admin != 1:
         db.close()
         raise HTTPException(
@@ -59,7 +59,7 @@ async def postProjectTechnology(technology: Technologie, db:sqlite3.Connection =
 
 #edit the personal info of the author       
 @router.post("/author-personal-info")
-async def edit_page_author_personal_info(request: Request,  db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(get_current_user))  -> Union[dict, bool]:
+async def edit_page_author_personal_info(request: Request,  db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(getCurrentUser))  -> Union[dict, bool]:
     personalInfo =  await request.json()
     print(personalInfo)
     db = db.cursor()
@@ -81,7 +81,7 @@ async def edit_page_author_personal_info(request: Request,  db: sqlite3.Connecti
 
 
 @router.post("/change-password")
-def change_password(password: dict, db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(get_current_user)) -> Union[dict, bool]:
+def change_password(password: dict, db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(getCurrentUser)) -> Union[dict, bool]:
     passwordInfo = password
     db = db.cursor()
     auth = getAuth()
@@ -102,7 +102,7 @@ def change_password(password: dict, db: sqlite3.Connection = Depends(getDB) , cu
     }
 
 @router.get("/extras")
-def extras(db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(get_current_user)) -> Union[dict, bool]:
+def extras(db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(getCurrentUser)) -> Union[dict, bool]:
     db = db.cursor()
     if currentUser.admin == 1:
         #query to get extra info
@@ -126,7 +126,7 @@ def extras(db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends
     }
 
 @router.post("/extras")
-def extrasPost(db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(get_current_user)) -> Union[dict, bool]:
+def extrasPost(db: sqlite3.Connection = Depends(getDB) , currentUser: User = Depends(getCurrentUser)) -> Union[dict, bool]:
     
     db = db.cursor()
     selected = db.execute("SELECT extras FROM siteSettings").fetchone()[0]

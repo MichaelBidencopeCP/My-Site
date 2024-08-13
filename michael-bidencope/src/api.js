@@ -3,7 +3,41 @@ import axios from 'axios';
 const api = axios.create({
     baseURL: 'http://localhost:8000/',
 });
+function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
 
+    return JSON.parse(jsonPayload);
+}
+
+async function createUser(username, password){
+    const response = await api.post(
+        '/register',
+        {
+            username: username,
+            password: password
+        },
+        {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+        }
+    ).catch(function (error) {
+        if (error.response.status === 409){
+            return 409;
+        }
+        return 0;
+    }).then((response) => {
+        if(response.status === 200){
+            return 200;
+        }
+        return 0;
+    });
+    return response;
+}
 
 //test getting user with id 1
 async function getUser(){
@@ -23,7 +57,7 @@ async function getToken(username, password){
             headers: {
               'Content-Type': 'multipart/form-data'
             }
-          }
+        }
         ).catch(function (error) {
             flag = 0;
         }
@@ -426,4 +460,4 @@ async function getExtrasEnabled(token){
     return response;
 }
 
-export { getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects, ChangePasswordPost, getExtrasEnabled, postExtras }
+export {api, parseJwt, createUser, getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects, ChangePasswordPost, getExtrasEnabled, postExtras }

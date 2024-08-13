@@ -3,7 +3,7 @@ import sqlite3
 from ..database import Database
 from ..projectTypes import User
 from ..authentication import Authentication
-from ..common import get_current_user, getDB, dbCommit, getAuth
+from ..common import getCurrentUser, getDB, dbCommit, getAuth
 
 router = APIRouter()
 
@@ -15,7 +15,7 @@ async def updateLocalCheck(db: sqlite3.Connection = Depends(getDB) ):
     return result[1]
 
 @router.post("/update")
-async def updateLocal(db: sqlite3.Connection = Depends(getDB), user: User = Depends(get_current_user) ):
+async def updateLocal(db: sqlite3.Connection = Depends(getDB), user: User = Depends(getCurrentUser) ):
     if user.admin == 1:
         db = db.cursor()
         db.execute("UPDATE updates SET update_key = update_key + 1")
