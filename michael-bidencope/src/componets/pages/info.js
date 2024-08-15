@@ -9,7 +9,6 @@ function InfoPage({info}){
     let [technologies, setTechnologies] = useState([]);
     useMemo(() => {
         if(technologies.length === 0){
-            console.log('getting tags');
             getProejectTags().then((response) => {
                 setTechnologies(response.data);
             });

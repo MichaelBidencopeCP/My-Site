@@ -17,6 +17,8 @@ async def setSiteTheme(db: sqlite3.Connection = Depends(getDB), user: User = Dep
         #select theme matching user acount
         theme = db.execute("SELECT * FROM siteThemes WHERE user_id = ?", (user.id,)).fetchone()
     #add rows 2 through 9 to a Theme object
+    if theme is None:
+        theme = db.execute("SELECT * FROM siteThemes WHERE user_id = ?", (1,)).fetchone()
     theme = Theme(background_default=theme[2],primary_main=theme[3], primary_contrast= theme[4], backup_main= theme[5], backup_contrast= theme[6], secondary_main= theme[7], error=theme[8])
 
     db.close()
@@ -27,13 +29,9 @@ async def setSiteTheme(db: sqlite3.Connection = Depends(getDB), user: User = Dep
 async def setSiteTheme(request: Request, db: sqlite3.Connection = Depends(getDB), user: User = Depends(getCurrentUser)) -> Union[dict, str]:
     db = db.cursor()
     theme = await request.json()
-    #check the user is an admin
-    #if user.admin == 1:
-        #update theme matching user_id in theme table
-    #try:
-    if 1 == 1:
+
+    try:
         query = "SELECT 1 FROM siteThemes WHERE user_id = ?"
-        print(user.id)
         cursor = db.execute(query, (user.id,))
         result = cursor.fetchone()
         update = result is not None
@@ -41,8 +39,7 @@ async def setSiteTheme(request: Request, db: sqlite3.Connection = Depends(getDB)
             db.execute("UPDATE siteThemes SET background_default = ?, primary_main = ?, primary_contrast = ?, backup_main = ?, backup_contrast = ?, secondary_main = ?, error = ? WHERE user_id = ?", (theme['background_default'], theme['primary_main'], theme['primary_contrast'], theme['backup_main'], theme['backup_contrast'], theme['secondary_main'], theme['error'], user.id))
         else:
             db.execute("INSERT INTO siteThemes (user_id, background_default, primary_main, primary_contrast, backup_main, backup_contrast, secondary_main, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (user.id, theme['background_default'], theme['primary_main'], theme['primary_contrast'], theme['backup_main'], theme['backup_contrast'], theme['secondary_main'], theme['error']))
-    try:
-        print('skip try')
+
     except Exception as e:
         print("whoopsie doopsies")
         print(e)

@@ -18,7 +18,6 @@ function DispalyProjects(){
         else{
             
             if(update.update == true && update.updatedProjects == true){
-
                 getProjects().then((response) => {
                     setProjects(Object.values(response));
                     setProjectsInLocal(Object.values(response));

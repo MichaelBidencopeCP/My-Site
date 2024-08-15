@@ -8,7 +8,6 @@ function DispalyProjectTags({project = 0, handSetSelectedTags = (tags) => {}, se
 
     
     const addTagToProject = (tag) => {
-        console.log(tag);
         let temp = selectedTags;
         temp.push(tags.find((element) => element.id === tag));
         handSetSelectedTags(temp);
@@ -16,7 +15,6 @@ function DispalyProjectTags({project = 0, handSetSelectedTags = (tags) => {}, se
         //remove from tags element with id tag
         temp.splice(temp.indexOf(tag), 1);
         setTags(temp);
-        console.log(tags)
     }
         //handSetSelectedTags(temp);
         //temp = tags;

@@ -52,7 +52,7 @@ function App() {
     const [extras, setExtras] = useState(false);
     const [loaded, setLoaded] = useState(false);
     const [tokenExp, setTokenExp] = useState(false);
-    const initialRender = useRef(true);
+    const [initialRender, setInitialRender] = useState(true);
 
     //Logic for intercepting 401's and logging out the user
     useMemo(() => {
@@ -77,14 +77,16 @@ function App() {
             }
         );
     }, [setTokenExp, setLogin]);
+
+
     useEffect(
         () => {
             if (login.token == 0){
                 return;
             }
-            //if(login.admin != true){ 
-            //    return;
-            //}
+            if(login.admin != true){ 
+                return;
+            }
             getExtrasEnabled(login.token).then((response) => {
                 response = response.response;
                 setExtras(response);
@@ -104,7 +106,7 @@ function App() {
         //set user info from api or cache
         //invalidate cache if with update value
         getUpdateValue().then((data) => {
-            if(initialRender.current){
+            if(initialRender){
                 let updateCheck = checkForUpdate(data);
                 if (updateCheck){
                     let hold = {...update}
@@ -113,50 +115,50 @@ function App() {
                     
                 }
             }
-            console.log('update value:', data);
         }).then(() => {
-            initialRender.current = false;
-
+            setInitialRender(false);
+        }).then(() => {
+            setTimeout(() => {
+                setLoaded(true);
+            }, 750);
+        });
+    } , []);
+    useEffect(() => {
+        //check if the token is expired
+        if(!initialRender){
             //Theme start up logic
             //if user is logged in
-            if(login.token != 0){
-
-                //default to using api to get theme
-                getThemeForSite(login.token).then((data) => {
-                    setCurrentTheme(data);
-                });
-            }
+            //if(login.token != 0){
+            //    //default to using api to get theme
+            //    getThemeForSite(login.token).then((data) => {
+            //        setCurrentTheme(data);
+            //    });
+            //}
             //no user is logged in, default to using api or cache to get theme
-            else{
-            
+            if (true){
                 //flag to update if cache is empty
                 let flagToUpdateTheme = false;
                 if(update.update === false){
-            
+                    //login id will be 0 if no user is logged in and load default theme
                     let localTheme = getThemeFromLocal(login.id);
                     if(localTheme){
                         setCurrentTheme(localTheme);
                     }
                     else{
-                        localTheme = getThemeFromLocal();
-                        if(localTheme){
-                            setCurrentTheme(localTheme);
-                        }
-                        else{
-                            flagToUpdateTheme = true;
-                        }
+                        flagToUpdateTheme = true;
                     }
+                    
                 }
-                if(update.update || flagToUpdateTheme){
-                    if(update.updatedProjects == false){
-                        getThemeForSite(login.token).then((data) => {
-                            setCurrentTheme(data);
-                            saveTheme(data, login.id);
-                            let hold = {...update};
-                            hold.updatedTheme = true;
-                            setUpdate(hold);
-                        });
-                    }
+                if((update.update && update.updatedTheme )|| flagToUpdateTheme){
+                    //if the user is not logged in, the defualt theme will be returned
+                    getThemeForSite(login.token).then((data) => {
+                        setCurrentTheme(data);
+                        saveTheme(data, login.id);
+                        let hold = {...update};
+                        hold.updatedTheme = false;
+                        setUpdate(hold);
+                    });
+                    
                 }
             }
             //User info start up logic
@@ -175,7 +177,7 @@ function App() {
                 }
             }
             //if admin has updated the database or the cache is empty update the cache
-            if(update.update || updateFlag){ 
+            if(update.update && update.updatedUserInfo || updateFlag){ 
                 getUser().then((data) => {
                     
                     setUser({name:data.name, title:data.title,email:data.email ,city:data.city, state:data.state});
@@ -190,14 +192,10 @@ function App() {
                     }
                 });
             }
-        }).then(() => {
-            setTimeout(() => {
-            setLoaded(true);
-            }, 750);
-        });
+        }
 
         
-    }, [ update.update]);
+    }, [ update.update,initialRender]);
     
     useEffect(() => { 
         //check that the theme is not the default theme
@@ -210,11 +208,11 @@ function App() {
     }, [currentTheme]);
 
     useEffect(() => {
-        //check the theme
-        if(login.token != 0){
-            getThemeForSite(login.token).then((data) => {
-                setCurrentTheme(data);
-            });
+        if(!initialRender){
+            let updateHold = {...update};
+            updateHold.activeUpdate = true;
+            updateHold.updatedTheme = true;
+            setUpdate(updateHold);
         }
         
         setPageState(0);
@@ -228,6 +226,16 @@ function App() {
             setUpdate(hold);
         }
     }, [update.activeUpdate]);
+    useEffect(() => {
+        if(update.update){
+            //check if all update values are false and set update to false
+            if(update.updatedProjects == false && update.updatedUserInfo == false && update.updatedTheme == false && update.updatedTags == false){
+                let hold = {...update};
+                hold.update = false;
+                setUpdate(hold);
+            }
+        }
+    }, [update]);
 
     //page state 0: home, 1:info , 2: contact, 3: login, 4: admin, 5: projectHub(for personal use)
     const handlePageChange = (page) => {setPageState(page);};

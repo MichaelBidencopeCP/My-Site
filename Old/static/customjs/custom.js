@@ -10,7 +10,6 @@ function addSkill(skill){
     else{
         $("#skills").val(list+","+id);
     }
-    console.log($("#skills").val());
     
 }
 function removeSkill(skill){
@@ -25,7 +24,6 @@ function removeSkill(skill){
     }
     $("#skills").val(list.join(","));
 
-    console.log($("#skills").val());
 }
 function tabs(tab){
     if(tab == 0){
@@ -77,7 +75,6 @@ class Projects{
                 frow = ''
             }
             count += check;
-            console.log(count)
             if (count >= 12){
                 count = 0;
                 row = ''

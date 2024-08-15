@@ -24,3 +24,6 @@ async def updateLocal(db: sqlite3.Connection = Depends(getDB), user: User = Depe
         db.close()
 
         return {"message": "Update key incremented"}
+    else:
+        #when user updates theme and is not an admin it will return this message
+        return {"message": "This is fine"}

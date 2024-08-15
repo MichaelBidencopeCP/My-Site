@@ -62,8 +62,7 @@
         }
         var colorPicker = new iro.ColorPicker('#picker');
         colorPicker.on('input:end', function(color) {
-            console.log(color.hexString);
-            console.log(color.rgbaString);
+
             
             //spit rgb string into r g b string
             var rgb = color.rgbString.split("(")[1].split(")")[0].split(",").join('-').replace(/\s/g, '');

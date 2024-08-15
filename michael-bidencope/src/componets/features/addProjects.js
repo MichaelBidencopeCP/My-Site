@@ -76,6 +76,7 @@ function AddProject({reloadTags}) {
             //set local update to true, so that the page will data will reload
             let updateHold = {...update};
             updateHold.activeUpdate = true;
+            updateHold.updatedProjects = true;
             setUpdate(updateHold);
         });
 

@@ -17,7 +17,7 @@ export default function Header({user, onPageChange}){
     const logout = () => {
         removeLoginState();
         
-        setLogin({token: 0, admin: false});
+        setLogin({token:0, admin:false, username:'', id:0, exp:-1});
     }
     //page state 0: home, 1:info , 2: contact, 3: login, 4: admin, 5: projectHub(for personal use)
     return(

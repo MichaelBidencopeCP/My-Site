@@ -15,7 +15,7 @@ class Database():
             raise Exception("SQLiteDB instance already exists. Use get_instance() method to access it.")
         else:
             Database.__instance = self
-            self.conn = sqlite3.connect("database.db", check_same_thread=False)
+            self.conn = sqlite3.connect("database/database.db", check_same_thread=False)
             self.cursor = self.conn.cursor()
             self.create_database_if_not_exists()
 

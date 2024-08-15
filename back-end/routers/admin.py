@@ -85,16 +85,16 @@ def change_password(password: dict, db: sqlite3.Connection = Depends(getDB) , cu
     passwordInfo = password
     db = db.cursor()
     auth = getAuth()
-    if currentUser.admin == 1:
+    try:
         #query to update user password
         db.execute("UPDATE users SET password = ? WHERE id = ?", (auth.get_password_hash(passwordInfo['password']), currentUser.id))
-    else:
+    except:
         db.close()
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to save data",
         )
+    
     db.close()
     dbCommit()
     return {

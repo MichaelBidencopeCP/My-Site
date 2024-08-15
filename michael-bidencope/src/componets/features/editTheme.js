@@ -94,6 +94,7 @@ function EditThemeControler({currentTheme, handleThemeChange}) {
                 setUpdateValueAPI(login.token);
                 let hold = {...update};
                 hold.activeUpdate = true;
+                hold.updatedTheme = true;
                 setUpdate(hold);
             }
             else {

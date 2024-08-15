@@ -28,7 +28,6 @@ function RemoveTags({modalShowing, setModalShowing,reloadTags}) {
     const handleSubmit = () => {
         let remove = [...selectedTags.map((value)=>{return value.id})];
         removeProjectTags(remove, token).then(async (value)=>{
-            console.log(value);
             if(await value){
                 handleClose();
                 reloadTags[1]();

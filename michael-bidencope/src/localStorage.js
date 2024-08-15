@@ -14,7 +14,6 @@ function checkForUpdate(value){
     const update = localStorage.getItem("update");
     
     if (update === null || update !== value.toString()) {
-        console.log("Updating local storage:", value.toString());
         localStorage.setItem("update", value.toString());
         return true;
     }

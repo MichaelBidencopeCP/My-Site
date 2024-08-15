@@ -1,6 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
+    //swap to env variable in future
+    //non docker dev
+    //baseURL: 'http://localhost:8000',
+    //Dev
+    //baseURL: 'http://localhost/api/',
+    //Prod
     baseURL: 'https://michael-bidencope.com/api/',
 });
 function parseJwt (token) {
