@@ -99,6 +99,7 @@ function App() {
     //set login from cache if token expired state will be set to logged out values
     useEffect(() => { setLogin(getLoginState()); }, []);
     
+    //need to fix the issue where this is called twice
     useMemo(() => {
         //set user info from api or cache
         //invalidate cache if with update value
@@ -196,7 +197,7 @@ function App() {
         });
 
         
-    }, [initialRender.current, update.update]);
+    }, [ update.update]);
     
     useEffect(() => { 
         //check that the theme is not the default theme
@@ -210,9 +211,11 @@ function App() {
 
     useEffect(() => {
         //check the theme
-        getThemeForSite(login.token).then((data) => {
-            setCurrentTheme(data);
-        });
+        if(login.token != 0){
+            getThemeForSite(login.token).then((data) => {
+                setCurrentTheme(data);
+            });
+        }
         
         setPageState(0);
     }, [login]);
@@ -295,7 +298,7 @@ function App() {
                         { tokenExp === 1 ? <h1>Token Expired</h1> : null}
                         { pageState === 0 ? <HomePage tokenExp={tokenExp}/>: null}
                         { pageState === 1 ? <InfoPage info={info} /> : null}
-                        { pageState === 2 ? <ContactPage /> : null}
+                        { pageState === 2 ? <ContactPage user={user}/> : null}
                         { pageState === 3 && login.token == 0 ? <LoginPage onPageChange={handlePageChange}/> : null}
                         { pageState === 4 && login.token != 0 ? <AdminPage info={info} handleInfoChange={handleInfoChange} user={user} setUserHandler={handleUserChange} currentTheme={currentTheme} handleThemeChange={handleThemeChange} /> : null}
                         { pageState === 5 && login.token != 0 && extras ? <ExtrasPage /> : null}

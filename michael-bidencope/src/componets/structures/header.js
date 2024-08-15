@@ -16,6 +16,7 @@ export default function Header({user, onPageChange}){
 
     const logout = () => {
         removeLoginState();
+        
         setLogin({token: 0, admin: false});
     }
     //page state 0: home, 1:info , 2: contact, 3: login, 4: admin, 5: projectHub(for personal use)
@@ -35,7 +36,7 @@ export default function Header({user, onPageChange}){
                         </Grid>
                         <Grid item xs={9} align={'right'} >
                             <a onClick={() => {onPageChange(0)}} href='#home'><NavButton >Home</NavButton></a>
-                            <a onClick={() => {onPageChange(1)}} href='#info'><NavButton >Info</NavButton></a>
+                            <a onClick={() => {onPageChange(1)}} href='#info'><NavButton >About Me</NavButton></a>
                             <a onClick={() => {onPageChange(2)}} href='#contact'><NavButton>Contact</NavButton></a>
                             {extras ? <a onClick={() => {onPageChange(5)}} href='#projectHub'><NavButton>Extras</NavButton></a> : null}
                             {loginState & login.admin ? <a onClick={() => {onPageChange(4)}} href='#admin'><NavButton>Admin</NavButton></a> : null}

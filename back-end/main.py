@@ -21,6 +21,7 @@ async def lifespan(app: FastAPI):
 origins = [
 
     "http://localhost:3000",
+    "http://localhost",
 ]
 
 app.add_middleware(
@@ -62,7 +63,6 @@ async def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             query = "SELECT * FROM users WHERE username = ?"
             db = getDB().cursor()
             db.execute(query, (form_data.username,))
-            print(db.fetchone())
             if db.fetchone():
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
