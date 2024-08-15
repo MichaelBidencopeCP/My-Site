@@ -19,9 +19,8 @@ async def lifespan(app: FastAPI):
     getDB()
 
 origins = [
-
-    "http://localhost:3000",
-    "http://localhost",
+	"michael-bidencope.com",
+	"*",
 ]
 
 app.add_middleware(

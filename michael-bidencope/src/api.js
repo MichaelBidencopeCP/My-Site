@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost/api/',
+    baseURL: 'https://michael-bidencope.com/api/',
 });
 function parseJwt (token) {
     var base64Url = token.split('.')[1];
