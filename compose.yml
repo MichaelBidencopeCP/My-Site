@@ -1,4 +1,4 @@
-
+ 
 services:
   api:
     build:
@@ -12,3 +12,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
+    depends_on:
+      - api
+    
