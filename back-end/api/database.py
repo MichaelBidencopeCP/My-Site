@@ -1,6 +1,6 @@
 import sqlite3
 import os
-from .authentication import Authentication
+from api.authentication import Authentication
 
 class Database():
     __instance = None

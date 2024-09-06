@@ -1,8 +1,8 @@
 from typing_extensions import Annotated
 from fastapi import  HTTPException, status, Depends
-from .projectTypes import User, UserWithHash, TokenData
-from .database import Database
-from .authentication import Authentication
+from api.projectTypes import User, UserWithHash, TokenData
+from api.database import Database
+from api.authentication import Authentication
 from jose import JWTError, jwt
 from typing_extensions import Annotated
 from fastapi.security import OAuth2PasswordBearer

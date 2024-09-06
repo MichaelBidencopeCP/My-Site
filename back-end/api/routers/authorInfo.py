@@ -1,8 +1,8 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 import sqlite3
-from ..projectTypes import User
-from ..common import getCurrentUser, getDB, dbCommit
+from api.projectTypes import User
+from api.common import getCurrentUser, getDB, dbCommit
 from typing import Union
 
 

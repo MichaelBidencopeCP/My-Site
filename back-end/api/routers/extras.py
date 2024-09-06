@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException, status
-from ..common import getCurrentUser, getDB, dbCommit
+from api.common import getCurrentUser, getDB, dbCommit
 import socket
 from dotenv import load_dotenv
 import os

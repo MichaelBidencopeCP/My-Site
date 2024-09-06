@@ -1,7 +1,7 @@
 
 import './App.css';
 import Header from './componets/structures/header.js';
-import { createTheme, ThemeProvider  } from '@mui/material/styles';
+import { createTheme, ThemeProvider, alpha} from '@mui/material/styles';
 
 import CssBaseline from '@mui/material/CssBaseline';
 import { HomePage } from './componets/pages/home.js';
@@ -282,6 +282,8 @@ function App() {
                 },
                 backup: {
                     main: currentTheme.backup_main,
+                    light: alpha(currentTheme.backup_main, 0.5),
+                    dark: alpha(currentTheme.backup_main, 0.9),
                     contrastText: currentTheme.backup_contrast,
                 },
                 secondary: {
@@ -332,6 +334,8 @@ const theme = createTheme({
         },
         backup: {
             main: '#000000',
+            light: alpha('#000000', 0.5),
+            dark: alpha('#000000', 0.9),
             contrastText: '#000000',
         },
         secondary: {

@@ -39,7 +39,7 @@ function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, 
             <EditPersonalInfo modalShowing={modalShowing} setModalShowing={setModal} user={user} setUser={setUserHandler}/>
             <AddTagsToSite modalShowing={modalShowing} setModalShowing={setModal} reloadTags={[reloadTags,handleSetReload]} />
             <RemoveTags modalShowing={modalShowing} setModalShowing={setModal} reloadTags={[reloadTags,handleSetReload]}/>
-            <EditProject modalShowing={modalShowing} setModalShowing={setModal} />
+            <EditProject modalShowing={modalShowing} setModalShowing={setModal}  reloadTags={[reloadTags,handleSetReload]}/>
             <ChangePassword modalShowing={modalShowing} setModalShowing={setModal} />
             
             <BackupButton onButton={() => {setModal(1)}}>Edit Personal Info</BackupButton>

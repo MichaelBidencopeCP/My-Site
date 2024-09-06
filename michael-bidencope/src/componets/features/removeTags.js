@@ -48,7 +48,7 @@ function RemoveTags({modalShowing, setModalShowing,reloadTags}) {
             {alert === 1 && <Alert sx={{mb:2}} severity="error">Error Saving Changes</Alert>}
             <Box p={2} pt={0}>
                 
-                <AddTagsToProject selectedTags={selectedTags} setSelectedTags={handleSetSelectedTags} reloadTags={[true,reloadTags[1]]}/>
+                <AddTagsToProject selectedTags={selectedTags} setSelectedTags={handleSetSelectedTags} reloadTags={reloadTags[0]}/>
                 <BackupButton onButton={handleSubmit}>Remove Selected</BackupButton>
                 <BackupButton onButton={handleClose}>Close</BackupButton>
             </Box>

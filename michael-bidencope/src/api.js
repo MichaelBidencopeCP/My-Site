@@ -5,9 +5,9 @@ const api = axios.create({
     //non docker dev
     //baseURL: 'http://localhost:8000',
     //Dev
-    //baseURL: 'http://localhost/api/',
+    baseURL: 'http://localhost/api/',
     //Prod
-    baseURL: 'https://michael-bidencope.com/api/',
+    //baseURL: 'https://michael-bidencope.com/api/',
 });
 function parseJwt (token) {
     var base64Url = token.split('.')[1];
@@ -356,19 +356,18 @@ async function getProjects(){
  * @returns {boolean} true if successful, false if failed
  */
 async function deleteProjects(projects, token){
-    token = await token;
-    projects = await projects;
-    const response = await api.post(
-        '/projects/delete',
-        {
-            'projects': projects
-        },
+    console.log(projects, token);
+    const response = await api.delete(
+        '/projects',
         {
             headers: {
                 Authorization: 'Bearer ' + token,
                 "Content-Type": 'application/json'
-            }
-        }
+            },
+            data: projects
+        },
+        
+        
     ).catch((error) => {
         return false;
     }).then((response) => {
@@ -466,4 +465,32 @@ async function getExtrasEnabled(token){
     return response;
 }
 
-export {api, parseJwt, createUser, getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects, ChangePasswordPost, getExtrasEnabled, postExtras }
+async function updateProject(project, token){
+    api.put(
+        '/projects',
+        {
+            'id': project.id,
+            'name': project.name,
+            'description': project.description,
+            'image': "",//placeholder
+            'link': "",//placeholder
+            'technologies': [...project.technologies],
+        },
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).then((response) => {
+        console.log(response)
+        if(response.status < 400){
+            return true;
+        }
+        return false;
+    }).catch((error) => {
+        return false;
+    });
+}
+
+export {api,updateProject, parseJwt, createUser, getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects, ChangePasswordPost, getExtrasEnabled, postExtras }

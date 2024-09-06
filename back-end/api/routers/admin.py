@@ -1,9 +1,9 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 import sqlite3
-from ..projectTypes import User, Technologie
+from api.projectTypes import User, Technologie
 from typing import Union
-from ..common import getCurrentUser, getDB, dbCommit, getAuth
+from api.common import getCurrentUser, getDB, dbCommit, getAuth
 
 
 router = APIRouter()
@@ -150,4 +150,29 @@ def extrasPost(db: sqlite3.Connection = Depends(getDB) , currentUser: User = Dep
     return {
         "response":True
     }
-    
+#from fastapi import UploadFile
+#import boto3
+#s3 = boto3.client('s3')
+#
+#@router.post('add-picture')
+#def addProfilePic(file: UploadFile, currentUser: User = Depends(getCurrentUser)) -> bool:
+#    #check if photo is correct file type
+#    if not (file.content_type == "image/jpeg" or file.content_type == "image/png"):
+#        return HTTPException(
+#            status_code = status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+#            detail = "File must be jpeg or png",
+#        )
+#    if currentUser.admin != 1:
+#        return HTTPException(
+#            status_code = status.HTTP_401_UNAUTHORIZED,
+#            details = "Must be admin to set profile picture",
+#            headers = {"WWW-Authenticate": "Bearer"},
+#        )
+#    #check that bucket exists
+#    bucket = s3.create_bucket(Bucket = "portfolio")
+#    with open(file, 'rb') as fb:
+#        bucket = s3.uploadfile(fb, 'portfolio', 'profilePicture')
+#
+#    return {
+#        "response": True
+#    }

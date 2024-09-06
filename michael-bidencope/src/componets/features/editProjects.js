@@ -1,166 +1,189 @@
-import { useState, useEffect, useRef, useContext } from 'react';
+import { useState, useEffect, useRef, useContext, useMemo } from 'react';
 
-import { Dialog, DialogTitle, Box, FormControl, InputLabel, Input, Table, TableContainer, TableHead, TableCell, TableBody, TableRow, Tab } from '@mui/material';
+import { Dialog, DialogTitle, Box, FormControl, InputLabel, Input, Table, TableContainer, TableHead, TableCell, TableBody, TableRow, Tab, TableFooter, IconButton, Tooltip } from '@mui/material';
 
 import { BackupButton } from '../components/backupButtons';
 import { getProjectsFromLocal, setProjectsInLocal, setUpdateValue } from '../../localStorage';
 import { deleteProjects, getProjects, setUpdateValueAPI } from '../../api';
 import { DeleteButtonIcon, SelectAllDeleteButton } from '../components/deleteBtn';
 import { EditButtonIcon } from '../components/editButton';
-
+import DeleteIcon from '@mui/icons-material/Delete';
 import { LoginContext, UpdateContext } from '../../App';
+import { ProjectEditTable } from '../components/projectEditTable';
+import { red } from '@mui/material/colors';
 
 
 
-function EditProject({modalShowing, setModalShowing}) {
-    const [projects, setProjects] = useState([]);
-    //selected {index: index, clicked: false, edit:false, id: project.id}
-    const [selected, setSelected] = useState([]);
-    const [allSelected, setAllSelected] = useState(false);
+function EditProject({modalShowing, setModalShowing, reloadTags}) {
+    //projects is an objects
+    //{'id':{id: 1, name: 'project1', description:'aboutproject1', technologies:[{name:'docker', image:'path'}], clicked:bool, edit:bool},...}
+    const [projects, setProjects] = useState({});
     const {update, setUpdate} = useContext(UpdateContext);
-
     const {login,} = useContext(LoginContext);
+    const open = modalShowing === 4? true:false;
+    const [projectSelected, setProjectSelected] = useState(false);
 
+    const handleSelected = (id) => {
 
-    
-    const handleSelected = (index) => {
-        let newSelected = [...selected];
-        newSelected[index].clicked = !newSelected[index].clicked;
-        setSelected(newSelected);
-        setAllSelected(false);
-    }
-    const hadnleAllSelect = () =>{
-        let newSelected = [...selected];
-        //if all are selected, unselect all 
-        if (newSelected.every((item) => item.clicked === true)){
-            newSelected.forEach((item) => item.clicked = false);
+        let hold = {...projects};
+        hold[id].clicked = !hold[id].clicked;
+        setProjects(hold);
+        if(!hold[id].clicked){
+            if(Object.keys(hold).every((item) => hold[item].clicked == false)){
+                setProjectSelected(false);
+            }
         }
-        //else select all
         else{
-            newSelected.forEach((item) => item.clicked = true);
+            setProjectSelected(true);
         }
-        setSelected(newSelected);
-        let hold = !allSelected;
-        setAllSelected(hold);
+
+    }
+    useEffect(() => {
+        console.log('updateActive');
+    }, []);
+
+    const hadnleAllSelect = () =>{
+        let hold = {...projects};
+        if (Object.keys(projects).every((item) => projects[item].clicked === true)){
+            Object.keys(hold).forEach((key) => {
+                hold[key].clicked = false;
+            });
+            setProjectSelected(false);
+        }
+        else{
+            Object.keys(hold).forEach((key) => {
+                hold[key].clicked = true;
+            });
+            setProjectSelected(true);
+        }
+        setProjects(hold);
     }
 
     const handleClose = () => {
         setModalShowing(0);
     }
     
-    useEffect(() => {
+    useMemo(() => {
         let localResponse = getProjectsFromLocal();
         if (localResponse){
-            setProjects(Object.values(localResponse));
+            //Change from array of projects to object with id as key
+            let projects = {};
+            localResponse.forEach((project) => {
+                project.clicked =  false
+                project.edit = false
+                projects[project.id] = project;
+            });  
+            setProjects(projects);
         }
         else{
             getProjects().then((response) => {
-                setProjects(Object.values(response));
+                
                 setProjectsInLocal(Object.values(response));
-            });
-        }
-
+                let projects = {};
+                response.forEach((project) => {
+                    project.clicked =  false
+                    project.edit = false
+                    projects[project.id] = project;
+                });
+                setProjects(projects);
+            })
+              
+        }        
     }, []);
-
-    useEffect(() => {
-        setSelected(projects.map((project, index) => { return {index: index, clicked: false, edit: false, id: project.id}}));
-    }, [projects]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
         
         handleClose();
     }
-    const open = modalShowing === 4? true:false
-    const fields = [
-        {id:'id', label: 'ID', width: 70},
-        {name: 'name', label: 'Name'},
-    ]
+    
     const deleteSelected = () => {
-        //get all selected projects
-        let selectedProjects = selected.filter((project) => project.clicked === true);
-        selectedProjects = selectedProjects.map((project) => project.id);
-        //make api call to delete selected projects
-        deleteProjects(selectedProjects,login.token ).then((response) => {
+        let selectedProjects = [];
+        Object.keys(projects).forEach((key) => {
+            if(projects[key].clicked === true){
+                selectedProjects.push(parseInt(key));
+            }
+        });
+        deleteProjects(selectedProjects, login.token).then((response) => {
             if(!response){
                 console.log('error deleting projects');
             }
             else{
                 setUpdateValueAPI(login.token);
+                let projectHold = projects;
+                selectedProjects.forEach((id) => {
+                    delete projectHold[id];
+                });
+                setProjects(projectHold);
                 //set updateActive to true
                 let hold = {...update};
-                hold.update = true;
+                hold.activeUpdate = true;
+                hold.updatedProjects = true;
                 setUpdate(hold);
+                setProjectSelected(false);
             }
         });
 
     }
-    const handleEdit = (index) => {
-        let newSelected = [...selected];
-        newSelected[index].edit = !newSelected[index].edit;
-        setSelected(newSelected);
-    }
+
     const handleEditSubmit = () => {
         console.log('submitted');
     }
-    //{selected[index].edit ? project.name : <><Input value={project.name} style={{marginRight:'20px'}}></Input><BackupButton onButton={()=>{handleEditSubmit()}} >Save</BackupButton></>}
     return (
-        <Dialog  onClose={handleClose} open={open} maxWidth={'md'} fullWidth={true}>
+        <Dialog  onClose={handleClose} open={open} maxWidth={'md'} fullWidth={true} > 
             
             <DialogTitle >Edit Projects</DialogTitle>
             
                 <Box  sx={{
-                    margin: 2
+                    margin: 2,
+                    marginRight: 0,
+                    paddingRight:2,
+                    overflowY: 'scroll',
+
                 }}>
                     
-                        <Box sx={{width:'100%'}}>
-                            <BackupButton onButton={deleteSelected} >Delete Projects</BackupButton>
-                        </Box>
+                        
                             
                     <TableContainer >
                         <Table >
                             
                             <TableHead >
-                                <TableCell width={90}>
-                                    <SelectAllDeleteButton onClick={hadnleAllSelect} allSelected={allSelected}></SelectAllDeleteButton>
+                                <TableCell width={"15%"} scope='row'>
+                                    <SelectAllDeleteButton onClick={hadnleAllSelect} allSelected={Object.keys(projects).every((item) => projects[item].clicked === true)}></SelectAllDeleteButton>
                                 </TableCell>
 
-                                <TableCell width={90}>
+                                <TableCell width={"15%"} scope='row'>
                                     ID
                                 </TableCell>
-                                <TableCell >
+                                <TableCell width={"40%"} scope='row'>
                                     Name
                                 </TableCell>
+                                <TableCell width={"50%"} scope='row' align="right">
+                                    <Tooltip title="Delete Selected Projects">
+                                        <IconButton onClick={deleteSelected} >
+                                            <DeleteIcon sx={{color:[projectSelected?red[500]:null]}}></DeleteIcon>
+                                        </IconButton>
+                                    </Tooltip>
+                                </TableCell>
+                                
                                 
                             </TableHead>
-                            <TableBody>            
-                                            
-                                {
-                                    selected ? projects.map((project, index) => {
-                                        return (
-                                            <TableRow
-                                                key={project.id}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 }, width: 100 }}
-                                            >
-                                                <TableCell component="th" scope="row">
-                                                    <DeleteButtonIcon selected={selected[index]} handleSelect={handleSelected}></DeleteButtonIcon>
-                                                    <EditButtonIcon selected={selected[index]} handleEdit={handleEdit}></EditButtonIcon>
-                                                </TableCell>
-                                                
-                                                <TableCell component="th" scope="row">
-                                                    {project.id}
-                                                </TableCell>
-                                                <TableCell component="th" scope="row">
-                                                    {project.name}
-                                                </TableCell>
-                                                
-                                            </TableRow>
-                                        )
-                                    }) : <div>loading</div>
-
-                                }
+                            <TableBody overflowY="scroll">            
+                                <ProjectEditTable 
+                                    projects={projects} 
+                                    handleSelected={handleSelected} 
+                                    setProjects={setProjects}
+                                    reloadTags={reloadTags}
+                                />
                                 
                             </TableBody>
+                            <TableFooter>
+                                <TableRow >
+                                    <TableCell colSpan={12} style={{borderBottom:'unset'}}>
+                                       
+                                    </TableCell>
+                                </TableRow>
+                            </TableFooter>
                         </Table>
                     </TableContainer>
 

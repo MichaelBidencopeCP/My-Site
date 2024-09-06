@@ -65,8 +65,7 @@ function AddProject({reloadTags}) {
             setSaved(1);
             event.target.elements.name.value = '';
             event.target.elements.description.value = '';
-            let hold = reloadTags[0];
-            reloadTags[1](!hold);
+            reloadTags[1]()
             setUpdateValueAPI(login.token).then((response) => {
                 if(response === false){
                     alert('Error updating cache');
@@ -97,7 +96,7 @@ function AddProject({reloadTags}) {
                     <br/>
                 
                 
-                    <AddTagsToProject selectedTags={selectedTags} setSelectedTags={handleSetSelectedTags} reloadTags={reloadTags}/>
+                    <AddTagsToProject selectedTags={selectedTags} setSelectedTags={handleSetSelectedTags} reloadTags={reloadTags[0]}/>
                         
                     
                     <FormControl fullWidth sx={{mb:2}}>

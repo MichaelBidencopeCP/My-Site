@@ -7,9 +7,9 @@ from typing_extensions import Annotated
 from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
-from .routers import update, authorInfo, projects, theme, admin
-from .projectTypes import Token
-from .common import getCurrentUser, getDB, dbCommit, getCurrentUserOrNone, getAuth, getUserWithHash
+from api.routers import update, authorInfo, projects, theme, admin
+from api.projectTypes import Token
+from api.common import getCurrentUser, getDB, dbCommit, getCurrentUserOrNone, getAuth, getUserWithHash
 from contextlib import asynccontextmanager
 app = FastAPI()
 

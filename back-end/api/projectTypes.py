@@ -31,18 +31,20 @@ class Theme(BaseModel):
     secondary_main: str
     error: str
 
-class Project(BaseModel):
-    id: int
-    name: str
-    description: str
-    technologies: list
-    image: Union[str, None]
-    link: Union[str, None]
+
 
 class Technologie(BaseModel):
     id: Union[int, None]
     name: str
     image: str
+
+class Project(BaseModel):
+    id: int
+    name: str
+    description: str
+    technologies: list[Technologie]
+    image: Union[str, None]
+    link: Union[str, None]
 
 class ProjectOut(Project):
     technologies: list
