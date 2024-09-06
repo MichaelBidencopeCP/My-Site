@@ -5,9 +5,9 @@ const api = axios.create({
     //non docker dev
     //baseURL: 'http://localhost:8000',
     //Dev
-    baseURL: 'http://localhost/api/',
+    //baseURL: 'http://localhost/api/',
     //Prod
-    //baseURL: 'https://michael-bidencope.com/api/',
+    baseURL: 'https://michael-bidencope.com/api/',
 });
 function parseJwt (token) {
     var base64Url = token.split('.')[1];
