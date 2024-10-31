@@ -5,9 +5,9 @@ const api = axios.create({
     //non docker dev
     //baseURL: 'http://localhost:8000',
     //Dev
-    //baseURL: 'http://localhost/api/',
+    baseURL: 'http://localhost/api/',
     //Prod
-    baseURL: 'https://michael-bidencope.com/api/',
+    //baseURL: 'https://michael-bidencope.com/api/',
 });
 function parseJwt (token) {
     var base64Url = token.split('.')[1];
@@ -356,7 +356,6 @@ async function getProjects(){
  * @returns {boolean} true if successful, false if failed
  */
 async function deleteProjects(projects, token){
-    console.log(projects, token);
     const response = await api.delete(
         '/projects',
         {
@@ -483,7 +482,6 @@ async function updateProject(project, token){
             }
         }
     ).then((response) => {
-        console.log(response)
         if(response.status < 400){
             return true;
         }
@@ -493,4 +491,136 @@ async function updateProject(project, token){
     });
 }
 
-export {api,updateProject, parseJwt, createUser, getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects, ChangePasswordPost, getExtrasEnabled, postExtras }
+async function getClients(token){
+    token = await token;
+    const response = await api.get(
+        '/clients',
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).catch((error) => {
+        return false;
+    }).then((response) => {
+        return response.data;
+    });
+    return response;
+}
+
+async function newClient(token, client) {
+    token = await token;
+    const response = await api.post(
+        '/clients',
+        {
+            'name': client,
+            'id': null
+        },
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).catch((error) => {
+        return false;
+    }
+    ).then((response) => {
+        return response.data;
+    });
+    return response;
+}
+
+async function postPayment(payment, token){
+    token = await token;
+    const response = await api.post(
+        '/payment',
+        payment
+        ,
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).then((response) => {
+        return response.data;
+    });
+    return response;
+}
+
+async function getPayments(token){
+    token = await token;
+    const response = await api.get(
+        '/payment',
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).then((response) => {
+        return response.data;
+    }
+    ).catch((error) => {
+        return false;
+    });
+    return response;
+}
+
+async function lookupPayment(payment){
+    const response = await api.post(
+        '/payment/' + payment,
+        {
+            headers: {
+                "Content-Type": 'application/json'
+            }
+        }
+        
+    ).then((response) => {
+        return response.data;
+    }
+    ).catch((error) => {
+        return false;
+    });
+    return response;
+}
+
+async function confirmPayment(payment){
+    const response = await api.put(
+        '/payment/' + payment,
+        {
+            headers: {
+                "Content-Type": 'application/json'
+            }
+        }
+    ).then((response) => {
+        return response.data;
+    }
+    ).catch((error) => {
+        return false;
+    });
+    return response;
+}
+
+async function setInvoiceNumber(invoice, token){
+    const response = await api.post(
+        '/invoice',
+        {"number":invoice},
+        {
+            headers: {
+                "Content-Type": 'application/json',
+                "Authorization": 'Bearer ' + token
+            }
+        }
+    ).then((response) => {
+        return response.data;
+    }
+    ).catch((error) => {
+        return false;
+    });
+    return response;
+}
+
+export {api, setInvoiceNumber, confirmPayment, lookupPayment, getPayments, postPayment, newClient, getClients ,updateProject, parseJwt, createUser, getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects, ChangePasswordPost, getExtrasEnabled, postExtras }

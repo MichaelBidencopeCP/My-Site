@@ -16,7 +16,7 @@ services:
       dockerfile: Dockerfile
       target: dev
     volumes:
-      - ./michael-bidencope:/app
+      - ./michael-bidencope/src:/app/src
     ports:
       - "3000:3000"
     environment:

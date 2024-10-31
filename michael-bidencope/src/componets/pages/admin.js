@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { EditProject } from '../features/editProjects.js';
 import { ChangePassword } from '../features/changePassword.js';
 import { ExtrasSwitch } from '../components/extraPageSwitch.js';
+import { Payments } from '../features/payments.js';
 
 
 function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, handleThemeChange, token}){
@@ -41,6 +42,7 @@ function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, 
             <RemoveTags modalShowing={modalShowing} setModalShowing={setModal} reloadTags={[reloadTags,handleSetReload]}/>
             <EditProject modalShowing={modalShowing} setModalShowing={setModal}  reloadTags={[reloadTags,handleSetReload]}/>
             <ChangePassword modalShowing={modalShowing} setModalShowing={setModal} />
+            <Payments modalShowing={modalShowing} setModalShowing={setModal} />
             
             <BackupButton onButton={() => {setModal(1)}}>Edit Personal Info</BackupButton>
             <BackupButton onButton={() => {setModal(4)}}>Edit Projects</BackupButton>
@@ -48,6 +50,8 @@ function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, 
             <BackupButton onButton={() => {setModal(2)}}>Add Tag</BackupButton>
             <BackupButton onButton={() => {setModal(3)}}>Remove Tag</BackupButton>
             <BackupButton onButton={() => {setModal(5)}}>Change Password</BackupButton>
+            <br/>
+            <BackupButton onButton={() => {setModal(6)}}>Payments</BackupButton>
             <BackupButton >Add Education</BackupButton>
             <br/>
             Custom Pages<ExtrasSwitch/>
@@ -71,6 +75,7 @@ function AdminPage({info, handleInfoChange, user, setUserHandler, currentTheme, 
                     
                 </Grid>
             </Grid>
+
             <br></br>
             
 

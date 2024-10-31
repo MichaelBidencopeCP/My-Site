@@ -31,6 +31,8 @@ class Database():
         cursor.execute("CREATE TABLE IF NOT EXISTS projectTechnologies (id INTEGER PRIMARY KEY AUTOINCREMENT, project_id INTEGER NOT NULL, technology_id INTEGER NOT NULL, FOREIGN KEY(project_id) REFERENCES projects(id), FOREIGN KEY(technology_id) REFERENCES technologies(id))") 
         cursor.execute("CREATE TABLE IF NOT EXISTS updates (id INTEGER PRIMARY KEY AUTOINCREMENT, update_key INTEGER NOT NULL)")
         cursor.execute("CREATE TABLE IF NOT EXISTS siteSettings (id INTEGER PRIMARY KEY AUTOINCREMENT, extras INT NOT NULL)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS payments (id INTEGER PRIMARY KEY AUTOINCREMENT, client INTEGER NOT NULL, amount INTEGER NOT NULL, status TEXT NOT NULL, FOREIGN KEY(client) REFERENCES clients(id))")
+        cursor.execute("CREATE TABLE IF NOT EXISTS clients (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)")
         #check if any users exist
         cursor.execute("SELECT * FROM users")
         users = cursor.fetchall()

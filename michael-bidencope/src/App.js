@@ -19,6 +19,7 @@ import { ExtrasPage } from './componets/extras/extras';
 import { UserPage } from './componets/pages/user.js';
 import { PageSpinner } from './componets/structures/pageSpinner.js';
 import {api} from './api.js';
+import { PaymentPage } from './componets/pages/paymentPage.js';
 export const LoginContext = createContext(null);
 export const UpdateContext = createContext(null);
 export const ExtrasContext = createContext(null);
@@ -314,6 +315,7 @@ function App() {
                         { pageState === 5 && login.token != 0 && extras ? <ExtrasPage /> : null}
                         { pageState === 6 ? <SignUp /> : null}
                         { pageState === 7 && login.token != 0 ? <UserPage currentTheme={currentTheme} handleThemeChange={handleThemeChange} /> : null}
+                        { pageState === 9 ? <PaymentPage /> : null}
                     </ExtrasContext.Provider>    
                 </UpdateContext.Provider>
             </LoginContext.Provider>

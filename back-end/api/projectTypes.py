@@ -48,3 +48,16 @@ class Project(BaseModel):
 
 class ProjectOut(Project):
     technologies: list
+
+class Client(BaseModel):
+    id: Union[int, None]
+    name: str
+
+class Payment(BaseModel):
+    id: Union[int, None]
+    client: Client
+    status: str
+    amount: int
+
+class Invoice(BaseModel):
+    number: int

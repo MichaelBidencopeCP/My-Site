@@ -7,7 +7,7 @@ from typing_extensions import Annotated
 from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
-from api.routers import update, authorInfo, projects, theme, admin
+from api.routers import update, authorInfo, projects, theme, admin, payments
 from api.projectTypes import Token
 from api.common import getCurrentUser, getDB, dbCommit, getCurrentUserOrNone, getAuth, getUserWithHash
 from contextlib import asynccontextmanager
@@ -35,6 +35,7 @@ app.include_router(authorInfo.router)
 app.include_router(projects.router)
 app.include_router(theme.router)
 app.include_router(admin.router)
+app.include_router(payments.router)
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):

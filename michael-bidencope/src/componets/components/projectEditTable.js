@@ -49,7 +49,6 @@ function ProjectEditTable({projects,handleSelected,setProjects, reloadTags}) {
         });
         setUpdateValueAPI(login.token);
         editedRemove(id);
-        console.log("submitting edit");
     }
     const handleEditTags = (tags) => {
         let saves = {...save};
@@ -119,7 +118,6 @@ function ProjectEditTable({projects,handleSelected,setProjects, reloadTags}) {
             hold[id].description = save[id].description?save[id].description:hold[id].description;
             //more work needed here TODO TODO
             hold[id].technologies = save[id].technologies?save[id].technologies:hold[id].technologies;
-            console.log(reloadTags);
             //reloadTags[1]();
         }
         setProjects(hold);
