@@ -3,7 +3,9 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useEffect, useState } from "react";
 import { CheckoutForm } from "../components/checkoutForm";
 
-const stripePromise = loadStripe('')
+
+const stripePromise = ""
+
 
 function StripePayment({payment, paymentId, setStatus}) {
 

@@ -2,3 +2,8 @@ node_modules
 +```
 database/*
 */venv/
+venv
+# Ignore all .env directories
+.env
+# Ignore all .env files
+.env*

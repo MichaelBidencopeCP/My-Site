@@ -44,8 +44,9 @@ function DispalyProjects(){
         
         <Grid container spacing={2}>
             {
-                projects ? projects.map((project) => {
-                    return <Grid item xs={4} key={'grid'+project.id}><Project project={project} key={'project' +project.id} /></Grid>
+                projects ? Object.keys(projects).sort((a, b) => projects[a].index - projects[b].index).map((key) => {
+                    let project = projects[key];
+                    return <Grid item xs={12} md={4} key={'grid'+project.id}><Project project={project} key={'project' +project.id} /></Grid>
                 }) : <div>loading</div>
             }
         </Grid>

@@ -39,12 +39,13 @@ class Technologie(BaseModel):
     image: str
 
 class Project(BaseModel):
-    id: int
+    id: Union[int, None] = None
     name: str
     description: str
     technologies: list[Technologie]
     image: Union[str, None]
     link: Union[str, None]
+    index: Union[int, None] = None
 
 class ProjectOut(Project):
     technologies: list
@@ -56,8 +57,15 @@ class Client(BaseModel):
 class Payment(BaseModel):
     id: Union[int, None]
     client: Client
-    status: str
+    status: str 
     amount: int
 
 class Invoice(BaseModel):
     number: int
+
+class IndexChange(BaseModel):
+    id: int
+    index: int
+
+class NewIndexs(BaseModel):
+    indexs: list[IndexChange]

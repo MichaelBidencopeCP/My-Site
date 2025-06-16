@@ -85,6 +85,7 @@ function EditProject({modalShowing, setModalShowing, reloadTags}) {
                     project.edit = false
                     projects[project.id] = project;
                 });
+                
                 setProjects(projects);
             })
               

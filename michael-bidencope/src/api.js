@@ -266,16 +266,16 @@ async function postNewTag(tag, token){
 async function postProjectInfo(project, token){
     token = await token;
     project = await project;
-
+    project = {
+        'name': project.name,
+        'description': project.description,
+        'image': "",//placeholder
+        'link': "",//placeholder
+        'technologies': [...project.tags],
+    };
     const response = await api.post(
         '/projects',
-        {
-            'name': project.name,
-            'description': project.description,
-            'image': "",//placeholder
-            'link': "",//placeholder
-            'technologies': [...project.tags],
-        },
+        project,
         {
             headers: {
                 Authorization: 'Bearer ' + token,
@@ -623,4 +623,23 @@ async function setInvoiceNumber(invoice, token){
     return response;
 }
 
-export {api, setInvoiceNumber, confirmPayment, lookupPayment, getPayments, postPayment, newClient, getClients ,updateProject, parseJwt, createUser, getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects, ChangePasswordPost, getExtrasEnabled, postExtras }
+async function setNewIndexesForProjects(indexs, token){
+    token = await token;
+    const response = await api.post(
+        '/projects/index',
+        {indexs},
+        {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }
+        }
+    ).then((response) => {
+        return response.data;
+    }).catch((error) => {
+        return false;
+    });
+    return response;
+}
+
+export {api, setNewIndexesForProjects, setInvoiceNumber, confirmPayment, lookupPayment, getPayments, postPayment, newClient, getClients ,updateProject, parseJwt, createUser, getUser, getToken, postInfo, postPersonalInfo, getThemeForSite, postThemeForSite, getProejectTags, postProjectInfo, postNewTag, removeProjectTags, getUpdateValue, getProjects, setUpdateValueAPI,deleteProjects, ChangePasswordPost, getExtrasEnabled, postExtras }

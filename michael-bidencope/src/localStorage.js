@@ -173,6 +173,26 @@ function setProjectsInLocal(projects){
     return true;
 }
 
+function setProjectsIndexInLocal(projectsUpdated){
+    //get the indexes and ids for projects
+    let indexes = [];
+    for (let i = 0; i < projectsUpdated.length; i++){
+        indexes.push(projectsUpdated[i].index);
+    }
+    //get the projects from local storage
+    let projects = localStorage.getItem("projects");
+    if (projects != null){
+        projects = JSON.parse(projects);
+        //set the index of each project
+        for (let i = 0; i < projects.length; i++){
+            projects[i].index = indexes[i];
+        }
+        localStorage.setItem("projects", JSON.stringify(projects));
+        return true;
+    }
+    return false;
+}
 
 
-export {saveLoginState, getLoginState, removeLoginState, checkForUpdate, getUserInfoLocal, saveUserInfo, getThemeFromLocal, saveTheme, getProjectsFromLocal, setProjectsInLocal};
+
+export {saveLoginState, setProjectsIndexInLocal, getLoginState, removeLoginState, checkForUpdate, getUserInfoLocal, saveUserInfo, getThemeFromLocal, saveTheme, getProjectsFromLocal, setProjectsInLocal};
